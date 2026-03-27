@@ -1,0 +1,33 @@
+# Asset #13 SCADA 서버 - Tomcat 9 systemd unit
+# 경로: /etc/systemd/system/tomcat.service
+# SCADA-LTS WAR 구동용
+
+[Unit]
+Description=Apache Tomcat 9 - SCADA-LTS
+Documentation=https://tomcat.apache.org/tomcat-9.0-doc/
+After=network.target mysql.service
+Wants=mysql.service
+
+[Service]
+Type=forking
+User=tomcat
+Group=tomcat
+
+Environment="JAVA_HOME=/usr/lib/jvm/jre-11-openjdk"
+Environment="CATALINA_PID=/opt/tomcat/temp/tomcat.pid"
+Environment="CATALINA_HOME=/opt/tomcat"
+Environment="CATALINA_BASE=/opt/tomcat"
+Environment="CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC"
+
+ExecStart=/opt/tomcat/bin/startup.sh
+ExecStop=/opt/tomcat/bin/shutdown.sh
+
+RestartSec=10
+Restart=always
+
+# Security hardening
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target
