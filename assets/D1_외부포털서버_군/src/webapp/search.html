@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>통합검색 - 발도리아 국방부</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- ===== 상단 유틸리티 바 ===== -->
+<div class="utility-bar">
+    <div class="container">
+        <div class="utility-left">
+            <button class="util-btn font-size-btn" onclick="changeFontSize(-1)">가</button>
+            <button class="util-btn font-size-btn font-size-lg" onclick="changeFontSize(1)">가</button>
+            <span class="util-divider">|</span>
+            <a href="#" class="util-link">사이트맵</a>
+        </div>
+        <div class="utility-right">
+            <a href="#" class="util-link">로그인</a>
+            <span class="util-divider">|</span>
+            <a href="#" class="util-link">회원가입</a>
+            <span class="util-divider">|</span>
+            <a href="#" class="util-link">English</a>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 헤더 ===== -->
+<header class="site-header">
+    <div class="container header-inner">
+        <div class="logo-area">
+            <a href="/" class="logo-link">
+                <div class="logo-emblem">
+                    <div class="emblem-shield"><span class="emblem-star">&#9733;</span></div>
+                </div>
+                <div class="logo-text">
+                    <span class="logo-title">발도리아 국방부</span>
+                    <span class="logo-subtitle">Ministry of National Defense, Valdoria</span>
+                </div>
+            </a>
+        </div>
+        <div class="header-search">
+            <form action="/search.html" method="get" class="search-form-header">
+                <input type="text" name="keyword" placeholder="검색어를 입력하세요" class="search-input-header" aria-label="통합검색">
+                <button type="submit" class="search-btn-header" aria-label="검색">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </button>
+            </form>
+        </div>
+    </div>
+</header>
+
+<!-- ===== GNB ===== -->
+<nav class="gnb" role="navigation">
+    <div class="container">
+        <ul class="gnb-list">
+            <li class="gnb-item"><a href="#" class="gnb-link">국방소식</a></li>
+            <li class="gnb-item"><a href="#" class="gnb-link">정책 &middot; 자료</a></li>
+            <li class="gnb-item"><a href="#" class="gnb-link">민원 &middot; 참여</a></li>
+            <li class="gnb-item"><a href="#" class="gnb-link">국방부 소개</a></li>
+            <li class="gnb-item"><a href="#" class="gnb-link">채용</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- ===== 페이지 헤더 ===== -->
+<div class="page-header">
+    <h1>통합검색</h1>
+    <p>국방부 홈페이지 전체 내용을 검색합니다</p>
+</div>
+
+<div class="page-breadcrumb">
+    <div class="container">
+        <a href="/">HOME</a> &gt; <strong>통합검색</strong>
+    </div>
+</div>
+
+<!-- ===== 본문 ===== -->
+<!--
+    [취약점] VULN-D1-01: Spring4Shell (CVE-2022-22965)
+    이 검색 페이지는 /search.do 엔드포인트로 폼을 전송한다.
+    프로덕션 환경에서 Spring MVC의 SearchController가 SearchVO POJO 바인딩을 수행하며,
+    Spring 5.3.17 + JDK 11 + Tomcat WAR 배포 환경에서 Spring4Shell 공격이 가능하다.
+
+    정적 HTML 버전에서는 클라이언트 사이드 검색을 시뮬레이션한다.
+    실제 취약점은 Tomcat에 배포된 WAR의 /search.do 엔드포인트에서 발생한다.
+-->
+<div class="page-body">
+    <div class="container">
+        <div class="search-section">
+            <!-- 검색 카테고리 -->
+            <div class="search-category">
+                <label><input type="radio" name="category" value="all" checked> 전체</label>
+                <label><input type="radio" name="category" value="notice"> 공지사항</label>
+                <label><input type="radio" name="category" value="policy"> 정책자료</label>
+                <label><input type="radio" name="category" value="download"> 자료실</label>
+            </div>
+
+            <!-- 검색 폼 (실제 환경에서는 action="/search.do"로 Tomcat에 전송) -->
+            <form class="search-form" id="search-form" method="get" action="/search.html">
+                <input type="text" name="keyword" id="search-keyword" class="search-input"
+                       placeholder="검색어를 입력하세요" autofocus>
+                <button type="submit" class="search-btn">검색</button>
+            </form>
+
+            <!-- 검색 결과 -->
+            <div class="search-results" id="search-results">
+                <!-- JS로 동적 렌더링 -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 푸터 ===== -->
+<footer class="site-footer">
+    <div class="footer-main">
+        <div class="container footer-inner">
+            <div class="footer-info">
+                <div class="footer-logo"><span class="footer-logo-text">발도리아 국방부</span></div>
+                <address class="footer-address">
+                    (우) 04353 발도리아 수도 중앙로 22 국방부<br>
+                    대표전화: 02-748-1111 &nbsp;|&nbsp; 이메일: webmaster@mnd.valdoria.mil
+                </address>
+            </div>
+            <p class="footer-copyright">Copyright &copy; 2026 Ministry of National Defense, Valdoria. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="/js/main.js"></script>
+<script>
+(function() {
+    var data = [
+        { title: '2026년 상반기 국방 정책 방향', desc: '올해 상반기 국방 정책의 핵심 방향은 첨단과학기술 기반의 강한 국방 구현...', url: '/notice_view.html?id=1', cat: 'notice' },
+        { title: '사이버보안 강화 지침 시행 안내', desc: '전군 사이버보안 강화 지침이 2026년 2월 1일부터 시행됩니다...', url: '/notice_view.html?id=2', cat: 'notice' },
+        { title: '군 정보시스템 보안 점검 일정 공지', desc: '2026년 상반기 군 정보시스템 보안 점검 일정을 안내드립니다...', url: '/notice_view.html?id=3', cat: 'notice' },
+        { title: '병역의무 이행 안내 (2026년 개정)', desc: '개정된 병역법에 따른 주요 변경사항을 안내합니다...', url: '/notice_view.html?id=4', cat: 'notice' },
+        { title: '국방부 홈페이지 시스템 점검 안내', desc: '3월 15일 02:00~06:00 시스템 점검을 실시합니다...', url: '/notice_view.html?id=5', cat: 'notice' },
+        { title: '2026 국방백서 (공개본)', desc: '국방 정책, 전력 현황, 국제 안보 환경 분석 자료입니다.', url: '#', cat: 'download' },
+        { title: '병역의무 안내서', desc: '병역의무 이행 절차, FAQ, 관련 서식이 포함되어 있습니다.', url: '#', cat: 'download' },
+        { title: '사이버보안 정책 요약본', desc: '2026년 군 사이버보안 강화 지침 요약 자료입니다.', url: '#', cat: 'download' },
+        { title: '국방혁신 4.0 추진 계획', desc: '첨단기술 기반 스마트 국방 구현을 위한 중장기 추진 계획입니다.', url: '#', cat: 'policy' },
+        { title: 'AI 기반 사이버 위협 대응 체계', desc: '인공지능 기반 사이버 위협 탐지 및 대응 체계 구축 계획입니다.', url: '#', cat: 'policy' }
+    ];
+
+    var params = new URLSearchParams(window.location.search);
+    var keyword = params.get('keyword') || '';
+    var el = document.getElementById('search-results');
+    var input = document.getElementById('search-keyword');
+
+    if (keyword) {
+        input.value = keyword;
+        var kw = keyword.toLowerCase();
+        var cat = document.querySelector('input[name="category"]:checked');
+        var catVal = cat ? cat.value : 'all';
+
+        var results = data.filter(function(item) {
+            var matchText = (item.title + ' ' + item.desc).toLowerCase().indexOf(kw) !== -1;
+            var matchCat = catVal === 'all' || item.cat === catVal;
+            return matchText && matchCat;
+        });
+
+        var html = '<div class="search-result-count">"<strong>' + keyword + '</strong>" 검색 결과 총 <strong>' + results.length + '</strong>건</div>';
+
+        if (results.length > 0) {
+            results.forEach(function(item) {
+                html += '<div class="search-result-item"><h4><a href="' + item.url + '">' + item.title + '</a></h4><p>' + item.desc + '</p></div>';
+            });
+        } else {
+            html += '<p style="text-align:center;padding:40px 0;color:#888;">검색 결과가 없습니다.</p>';
+        }
+
+        el.innerHTML = html;
+    }
+})();
+</script>
+</body>
+</html>

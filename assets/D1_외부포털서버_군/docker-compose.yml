@@ -1,0 +1,39 @@
+# ============================================================
+# D1 외부 포털 서버 — Docker Compose (로컬 테스트용)
+# 사용법: docker compose up -d
+# ============================================================
+
+services:
+  portal:
+    image: mnd-portal:latest
+    build: .
+    ports:
+      - "8880:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=mnd_portal
+      - DB_USER=portal
+      - DB_PASSWORD=Portal@DB2024!
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: portal
+      POSTGRES_PASSWORD: "Portal@DB2024!"
+      POSTGRES_DB: mnd_portal
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portal -d mnd_portal"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  pgdata:

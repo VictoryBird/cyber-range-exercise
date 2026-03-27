@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>부서연락처 - 발도리아 국방부</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- ===== 상단 유틸리티 바 ===== -->
+<div class="utility-bar">
+    <div class="container">
+        <div class="utility-left">
+            <button class="util-btn font-size-btn" onclick="changeFontSize(-1)">가</button>
+            <button class="util-btn font-size-btn font-size-lg" onclick="changeFontSize(1)">가</button>
+            <span class="util-divider">|</span>
+            <a href="#" class="util-link">사이트맵</a>
+        </div>
+        <div class="utility-right">
+            <a href="#" class="util-link">로그인</a>
+            <span class="util-divider">|</span>
+            <a href="#" class="util-link">회원가입</a>
+            <span class="util-divider">|</span>
+            <a href="#" class="util-link">English</a>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 헤더 ===== -->
+<header class="site-header">
+    <div class="container header-inner">
+        <div class="logo-area">
+            <a href="/" class="logo-link">
+                <div class="logo-emblem">
+                    <div class="emblem-shield"><span class="emblem-star">&#9733;</span></div>
+                </div>
+                <div class="logo-text">
+                    <span class="logo-title">발도리아 국방부</span>
+                    <span class="logo-subtitle">Ministry of National Defense, Valdoria</span>
+                </div>
+            </a>
+        </div>
+        <div class="header-search">
+            <form action="/search.html" method="get" class="search-form-header">
+                <input type="text" name="keyword" placeholder="검색어를 입력하세요" class="search-input-header" aria-label="통합검색">
+                <button type="submit" class="search-btn-header" aria-label="검색">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </button>
+            </form>
+        </div>
+    </div>
+</header>
+
+<!-- ===== GNB ===== -->
+<nav class="gnb" role="navigation">
+    <div class="container">
+        <ul class="gnb-list">
+            <li class="gnb-item"><a href="#" class="gnb-link">국방소식</a></li>
+            <li class="gnb-item"><a href="#" class="gnb-link">정책 &middot; 자료</a></li>
+            <li class="gnb-item"><a href="#" class="gnb-link" style="background:#1b2a4a;color:#c9a84e;">민원 &middot; 참여</a></li>
+            <li class="gnb-item"><a href="#" class="gnb-link">국방부 소개</a></li>
+            <li class="gnb-item"><a href="#" class="gnb-link">채용</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- ===== 페이지 헤더 ===== -->
+<div class="page-header">
+    <h1>부서연락처</h1>
+    <p>국방부 주요 부서의 연락처를 안내합니다</p>
+</div>
+
+<div class="page-breadcrumb">
+    <div class="container">
+        <a href="/">HOME</a> &gt; <a href="#">민원 &middot; 참여</a> &gt; <strong>부서연락처</strong>
+    </div>
+</div>
+
+<!-- ===== 본문 ===== -->
+<div class="page-body">
+    <div class="container">
+        <div class="contact-grid">
+
+            <div class="contact-card">
+                <h3>국방정책실</h3>
+                <div class="contact-info-row">
+                    <span class="contact-label">전화</span>
+                    <span>02-748-5114</span>
+                </div>
+                <div class="contact-info-row">
+                    <span class="contact-label">이메일</span>
+                    <span>policy@mnd.valdoria.mil</span>
+                </div>
+                <div class="contact-info-row">
+                    <span class="contact-label">주소</span>
+                    <span>발도리아 수도 중앙로 22, 국방부 본관 3층</span>
+                </div>
+            </div>
+
+            <div class="contact-card">
+                <h3>사이버작전사령부</h3>
+                <div class="contact-info-row">
+                    <span class="contact-label">전화</span>
+                    <span>042-550-5000</span>
+                </div>
+                <div class="contact-info-row">
+                    <span class="contact-label">이메일</span>
+                    <span>cyber@mnd.valdoria.mil</span>
+                </div>
+                <div class="contact-info-row">
+                    <span class="contact-label">주소</span>
+                    <span>발도리아 대전시 유성구 국방로 88</span>
+                </div>
+            </div>
+
+            <div class="contact-card">
+                <h3>인사복지실</h3>
+                <div class="contact-info-row">
+                    <span class="contact-label">전화</span>
+                    <span>02-748-5200</span>
+                </div>
+                <div class="contact-info-row">
+                    <span class="contact-label">이메일</span>
+                    <span>hr@mnd.valdoria.mil</span>
+                </div>
+                <div class="contact-info-row">
+                    <span class="contact-label">주소</span>
+                    <span>발도리아 수도 중앙로 22, 국방부 본관 5층</span>
+                </div>
+            </div>
+
+            <div class="contact-card">
+                <h3>정보화기획관</h3>
+                <div class="contact-info-row">
+                    <span class="contact-label">전화</span>
+                    <span>02-748-5300</span>
+                </div>
+                <div class="contact-info-row">
+                    <span class="contact-label">이메일</span>
+                    <span>it@mnd.valdoria.mil</span>
+                </div>
+                <div class="contact-info-row">
+                    <span class="contact-label">주소</span>
+                    <span>발도리아 수도 중앙로 22, 국방부 별관 2층</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ===== 푸터 ===== -->
+<footer class="site-footer">
+    <div class="footer-main">
+        <div class="container footer-inner">
+            <div class="footer-info">
+                <div class="footer-logo"><span class="footer-logo-text">발도리아 국방부</span></div>
+                <address class="footer-address">
+                    (우) 04353 발도리아 수도 중앙로 22 국방부<br>
+                    대표전화: 02-748-1111 &nbsp;|&nbsp; 이메일: webmaster@mnd.valdoria.mil
+                </address>
+            </div>
+            <p class="footer-copyright">Copyright &copy; 2026 Ministry of National Defense, Valdoria. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="/js/main.js"></script>
+</body>
+</html>
