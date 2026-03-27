@@ -37,14 +37,17 @@ fi
 echo "[1/7] 호스트명 설정..."
 hostnamectl set-hostname ${HOSTNAME}
 
-# ===== [3] PostgreSQL 15 설치 =====
-echo "[2/7] PostgreSQL 15 설치 중..."
+# ===== [3] PostgreSQL 설치 =====
+echo "[2/7] PostgreSQL 설치 중..."
 apt-get update -qq
-apt-get install -y -qq postgresql-15 postgresql-contrib-15 postgresql-15-pgaudit ufw
+apt-get install -y -qq postgresql postgresql-contrib ufw
+# pgaudit 확장 설치 (설치된 PG 버전에 맞게)
+PG_VER=$(pg_config --version | grep -oP '\d+' | head -1)
+apt-get install -y -qq "postgresql-${PG_VER}-pgaudit" 2>/dev/null || echo "[WARN] pgaudit 설치 실패 — 수동 설치 필요"
 
 # ===== [4] PostgreSQL 설정 파일 배포 =====
 echo "[3/7] PostgreSQL 설정 배포..."
-PG_CONF_DIR="/etc/postgresql/15/main"
+PG_CONF_DIR="/etc/postgresql/${PG_VER}/main"
 
 # 기존 설정 백업
 cp ${PG_CONF_DIR}/postgresql.conf ${PG_CONF_DIR}/postgresql.conf.bak
