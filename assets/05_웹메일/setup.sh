@@ -47,6 +47,8 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y postfix
 # ==========================================================
 echo "[3/${TOTAL_STEPS}] Postfix 설정 파일 배포..."
 # ==========================================================
+[ -f "${SCRIPT_DIR}/conf/postfix/main.cf" ] || { echo "[ERROR] 파일 없음: conf/postfix/main.cf"; exit 1; }
+[ -f "${SCRIPT_DIR}/conf/postfix/master.cf" ] || { echo "[ERROR] 파일 없음: conf/postfix/master.cf"; exit 1; }
 cp conf/postfix/main.cf /etc/postfix/main.cf
 cp conf/postfix/master.cf /etc/postfix/master.cf
 cp conf/postfix/virtual_mailbox_maps /etc/postfix/virtual_mailbox_maps
@@ -59,6 +61,7 @@ echo "[4/${TOTAL_STEPS}] Dovecot 설치 및 설정..."
 apt-get install -y dovecot-core dovecot-imapd dovecot-lmtpd dovecot-ldap
 
 # Dovecot 설정 파일 배포
+[ -f "${SCRIPT_DIR}/conf/dovecot/dovecot.conf" ] || { echo "[ERROR] 파일 없음: conf/dovecot/dovecot.conf"; exit 1; }
 cp conf/dovecot/dovecot.conf /etc/dovecot/dovecot.conf
 cp conf/dovecot/conf.d/10-auth.conf /etc/dovecot/conf.d/10-auth.conf
 cp conf/dovecot/conf.d/10-mail.conf /etc/dovecot/conf.d/10-mail.conf
@@ -112,6 +115,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
   roundcube roundcube-core roundcube-plugins roundcube-plugins-extra
 
 # Roundcube 설정 배포
+[ -f "${SCRIPT_DIR}/conf/roundcube/config.inc.php" ] || { echo "[ERROR] 파일 없음: conf/roundcube/config.inc.php"; exit 1; }
 cp conf/roundcube/config.inc.php /etc/roundcube/config.inc.php
 chmod 640 /etc/roundcube/config.inc.php
 chown root:www-data /etc/roundcube/config.inc.php
@@ -123,6 +127,8 @@ chown www-data:www-data /var/lib/roundcube/db
 # ==========================================================
 echo "[9/${TOTAL_STEPS}] Apache VirtualHost 설정..."
 # ==========================================================
+[ -f "${SCRIPT_DIR}/conf/apache/roundcube.conf" ] || { echo "[ERROR] 파일 없음: conf/apache/roundcube.conf"; exit 1; }
+[ -f "${SCRIPT_DIR}/conf/apache/roundcube-proxy.conf" ] || { echo "[ERROR] 파일 없음: conf/apache/roundcube-proxy.conf"; exit 1; }
 cp conf/apache/roundcube.conf /etc/apache2/sites-available/roundcube.conf
 cp conf/apache/roundcube-proxy.conf /etc/apache2/sites-available/roundcube-proxy.conf
 

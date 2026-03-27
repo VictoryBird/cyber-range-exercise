@@ -7,6 +7,8 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 # root 권한 확인
 if [ "$EUID" -ne 0 ]; then
     echo "[오류] root 권한으로 실행하세요: sudo bash setup.sh"
@@ -41,7 +43,8 @@ CREATE DATABASE cop_db OWNER cop_user;
 DBSETUP
 
 # 스키마 및 시드 데이터 적용
-sudo -u postgres psql -d cop_db -f /opt/cop/sql/init.sql
+[ -f "${SCRIPT_DIR}/sql/init.sql" ] || { echo "[ERROR] SQL 파일 없음: sql/init.sql"; exit 1; }
+sudo -u postgres psql -d cop_db -f "${SCRIPT_DIR}/sql/init.sql"
 
 # PostgreSQL 인증 설정 (md5)
 sed -i 's/ident/md5/g' /var/lib/pgsql/15/data/pg_hba.conf
@@ -63,13 +66,14 @@ wget -P /opt/tomcat/lib/ https://repo1.maven.org/maven2/org/json/json/20231013/j
 
 # [6/9] Tomcat 설정 배포
 echo "[6/9] Tomcat 설정 배포..."
-cp /opt/cop/conf/tomcat/server.xml /opt/tomcat/conf/server.xml
+[ -f "${SCRIPT_DIR}/conf/tomcat/server.xml" ] || { echo "[ERROR] 파일 없음: conf/tomcat/server.xml"; exit 1; }
+cp "${SCRIPT_DIR}/conf/tomcat/server.xml" /opt/tomcat/conf/server.xml
 
 # [7/9] JSP 페이지 및 정적 파일 배포
 echo "[7/9] JSP 페이지 배포..."
 mkdir -p /opt/tomcat/webapps/ROOT/css
-cp /opt/cop/src/webapp/*.jsp /opt/tomcat/webapps/ROOT/
-cp /opt/cop/src/webapp/css/map.css /opt/tomcat/webapps/ROOT/css/
+cp "${SCRIPT_DIR}/src/webapp/"*.jsp /opt/tomcat/webapps/ROOT/
+cp "${SCRIPT_DIR}/src/webapp/css/map.css" /opt/tomcat/webapps/ROOT/css/
 
 # [8/9] Tomcat 시작
 echo "[8/9] Tomcat 시작..."

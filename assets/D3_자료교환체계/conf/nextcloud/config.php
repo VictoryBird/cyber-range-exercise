@@ -18,7 +18,7 @@ $CONFIG = array (
   /* ── 데이터베이스 ── */
   'dbtype' => 'mysql',
   'dbname' => 'nextcloud',
-  'dbhost' => 'db',          // docker-compose 서비스명
+  'dbhost' => 'localhost',
   'dbtableprefix' => 'oc_',
   'mysql.utf8mb4' => true,
 
@@ -27,7 +27,7 @@ $CONFIG = array (
   'memcache.distributed' => '\\OC\\Memcache\\Redis',
   'memcache.locking' => '\\OC\\Memcache\\Redis',
   'redis' => array (
-    'host' => 'redis',       // docker-compose 서비스명
+    'host' => 'localhost',
     'port' => 6379,
   ),
 

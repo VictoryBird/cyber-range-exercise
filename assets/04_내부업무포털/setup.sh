@@ -59,6 +59,7 @@ python3 -m venv "$APP_DIR/venv"
 source "$APP_DIR/venv/bin/activate"
 pip install --quiet --upgrade pip
 pip install --quiet -r "$APP_DIR/src/requirements.txt"
+${APP_DIR}/venv/bin/python -c "import django; print('Dependencies OK')" || { echo "[ERROR] 의존성 설치 실패"; exit 1; }
 
 # [6/10] Django 마이그레이션 및 초기화
 echo "[6/10] Django 초기화..."
@@ -70,6 +71,7 @@ python manage.py seed_data
 
 # [7/10] Nginx 설정
 echo "[7/10] Nginx 설정..."
+[ -f "${SCRIPT_DIR}/conf/nginx/intranet.conf" ] || { echo "[ERROR] 파일 없음: conf/nginx/intranet.conf"; exit 1; }
 cp "$SCRIPT_DIR/conf/nginx/intranet.conf" /etc/nginx/sites-available/
 ln -sf /etc/nginx/sites-available/intranet.conf /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
@@ -78,6 +80,7 @@ systemctl restart nginx
 
 # [8/10] systemd 서비스 등록
 echo "[8/10] systemd 서비스 등록..."
+[ -f "${SCRIPT_DIR}/conf/systemd/intranet-portal.service" ] || { echo "[ERROR] 파일 없음: conf/systemd/intranet-portal.service"; exit 1; }
 cp "$SCRIPT_DIR/conf/systemd/intranet-portal.service" /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable intranet-portal
@@ -99,6 +102,11 @@ if command -v ufw &> /dev/null; then
     ufw allow 8080/tcp  # HTTP (메인 포트)
     ufw allow 22/tcp    # SSH
     echo "  -> UFW 방화벽 규칙 추가 완료"
+fi
+
+# Remote DB 연결 확인
+if ! timeout 5 bash -c "echo > /dev/tcp/192.168.100.20/5432" 2>/dev/null; then
+    echo "[WARN] DB 서버(192.168.100.20:5432) 연결 불가 — 나중에 수동 확인 필요"
 fi
 
 sleep 3

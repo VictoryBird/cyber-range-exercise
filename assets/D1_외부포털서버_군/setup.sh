@@ -77,6 +77,7 @@ fi
 # DB, 사용자 생성 및 시드 데이터 로드
 sudo -u postgres psql -c "CREATE USER portal WITH PASSWORD 'Portal@DB2024!';" 2>/dev/null || true
 sudo -u postgres psql -c "CREATE DATABASE mnd_portal OWNER portal;" 2>/dev/null || true
+[ -f "${SCRIPT_DIR}/sql/init.sql" ] || { echo "[ERROR] SQL 파일 없음: sql/init.sql"; exit 1; }
 sudo -u postgres psql -d mnd_portal -f "${SCRIPT_DIR}/sql/init.sql"
 echo "  완료: mnd_portal DB 생성, 시드 데이터 로드됨"
 
@@ -112,6 +113,7 @@ echo "  완료: Tomcat ${TOMCAT_VERSION} 설치됨 (/opt/tomcat)"
 # [6/10] Tomcat 설정 적용
 # ============================================================
 echo "[6/${TOTAL_STEPS}] Tomcat 설정 적용..."
+[ -f "${SCRIPT_DIR}/conf/tomcat/server.xml" ] || { echo "[ERROR] 파일 없음: conf/tomcat/server.xml"; exit 1; }
 cp "${SCRIPT_DIR}/conf/tomcat/server.xml" /opt/tomcat/conf/server.xml
 chown tomcat:tomcat /opt/tomcat/conf/server.xml
 echo "  완료: server.xml 적용됨"
@@ -120,6 +122,7 @@ echo "  완료: server.xml 적용됨"
 # [7/10] Tomcat systemd 서비스 등록
 # ============================================================
 echo "[7/${TOTAL_STEPS}] Tomcat systemd 서비스 등록..."
+[ -f "${SCRIPT_DIR}/conf/systemd/tomcat.service" ] || { echo "[ERROR] 파일 없음: conf/systemd/tomcat.service"; exit 1; }
 cp "${SCRIPT_DIR}/conf/systemd/tomcat.service" /etc/systemd/system/tomcat.service
 systemctl daemon-reload
 systemctl enable tomcat
@@ -160,6 +163,7 @@ if [ ! -f /etc/nginx/ssl/mnd_valdoria_mil.crt ]; then
 fi
 
 # Nginx 설정 복사
+[ -f "${SCRIPT_DIR}/conf/nginx/mnd-portal.conf" ] || { echo "[ERROR] 파일 없음: conf/nginx/mnd-portal.conf"; exit 1; }
 cp "${SCRIPT_DIR}/conf/nginx/mnd-portal.conf" /etc/nginx/conf.d/mnd-portal.conf
 
 # 기본 설정 비활성화 (충돌 방지)

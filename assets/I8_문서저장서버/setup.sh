@@ -73,6 +73,7 @@ echo "[5/${TOTAL_STEPS}] Python 가상환경 및 패키지 설치..."
 python3 -m venv ${APP_DIR}/venv
 ${APP_DIR}/venv/bin/pip install --upgrade pip
 ${APP_DIR}/venv/bin/pip install -r requirements.txt
+${APP_DIR}/venv/bin/python -c "import fastapi; import uvicorn; print('Dependencies OK')" || { echo "[ERROR] 의존성 설치 실패"; exit 1; }
 
 # ==========================================================
 echo "[6/${TOTAL_STEPS}] 시드 문서 배치..."
@@ -114,6 +115,7 @@ from models import User, Document, AuditLog
 Base.metadata.create_all(bind=engine)
 print('테이블 생성 완료')
 "
+[ -f "${SCRIPT_DIR}/sql/init.sql" ] || { echo "[ERROR] SQL 파일 없음: sql/init.sql"; exit 1; }
 sudo -u postgres psql -d mil_docstorage -f ${SCRIPT_DIR}/sql/init.sql || true
 
 # ==========================================================
@@ -125,6 +127,7 @@ chmod -R 755 ${APP_DIR}/files
 # ==========================================================
 echo "[9/${TOTAL_STEPS}] systemd 서비스 등록..."
 # ==========================================================
+[ -f "${SCRIPT_DIR}/conf/systemd/docstorage.service" ] || { echo "[ERROR] 파일 없음: conf/systemd/docstorage.service"; exit 1; }
 cp ${SCRIPT_DIR}/conf/systemd/docstorage.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable --now docstorage
@@ -132,6 +135,7 @@ systemctl enable --now docstorage
 # ==========================================================
 echo "[10/${TOTAL_STEPS}] Nginx 설정..."
 # ==========================================================
+[ -f "${SCRIPT_DIR}/conf/nginx/docstorage.conf" ] || { echo "[ERROR] 파일 없음: conf/nginx/docstorage.conf"; exit 1; }
 cp ${SCRIPT_DIR}/conf/nginx/docstorage.conf /etc/nginx/sites-available/docstorage
 ln -sf /etc/nginx/sites-available/docstorage /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default

@@ -78,12 +78,25 @@ if [ ! -f "${SCRIPT_DIR}/.env" ]; then
     echo "  .env.example → .env 복사 완료"
 fi
 
+[ -f "${SCRIPT_DIR}/docker-compose.yml" ] || { echo "[ERROR] docker-compose.yml 파일 없음"; exit 1; }
+
 docker compose down --remove-orphans 2>/dev/null || true
 docker compose up -d
 
 echo ""
 echo "  컨테이너 기동 대기 중..."
 sleep 10
+
+# 배포 후 컨테이너 상태 확인
+echo "  컨테이너 상태 확인..."
+RUNNING=$(docker compose ps --format json 2>/dev/null | grep -c '"running"' || echo "0")
+EXPECTED=3  # cowrie, snare, tanner
+if [ "$RUNNING" -lt "$EXPECTED" ]; then
+    echo "  [WARN] 일부 컨테이너 미실행 — 상태 확인 필요:"
+    docker compose ps
+else
+    echo "  ✓ 모든 컨테이너 정상 실행 중"
+fi
 
 echo ""
 docker compose ps

@@ -60,6 +60,7 @@ echo -e "${GREEN}[3/8] 디렉토리 구조 생성...${NC}"
 mkdir -p "$INSTALL_DIR"/{data/chromadb,data/document_cache,logs,rag,seed}
 
 # 파일 복사
+[ -f "$SCRIPT_DIR/docker-compose.yml" ] || { echo -e "${RED}[ERROR] docker-compose.yml 파일 없음${NC}"; exit 1; }
 cp "$SCRIPT_DIR/docker-compose.yml" "$INSTALL_DIR/"
 cp "$SCRIPT_DIR/.env.example" "$INSTALL_DIR/.env"
 cp -r "$SCRIPT_DIR/rag/"* "$INSTALL_DIR/rag/"
@@ -73,6 +74,7 @@ python3 -m venv "$INSTALL_DIR/rag/venv"
 source "$INSTALL_DIR/rag/venv/bin/activate"
 pip install --quiet --upgrade pip
 pip install --quiet -r "$INSTALL_DIR/rag/requirements.txt"
+"$INSTALL_DIR/rag/venv/bin/python" -c "import chromadb; import langchain; print('Dependencies OK')" || { echo -e "${RED}[ERROR] RAG 의존성 설치 실패${NC}"; exit 1; }
 deactivate
 echo -e "${GREEN}  ✓ Python 의존성 설치 완료${NC}"
 

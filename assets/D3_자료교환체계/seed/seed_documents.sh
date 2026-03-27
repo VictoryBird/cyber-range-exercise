@@ -1,17 +1,16 @@
 #!/bin/bash
-# seed_documents.sh — D3 자료교환체계 Nextcloud 문서 시드
-# Nextcloud 컨테이너 내부에서 OCC 명령으로 사용자/그룹/문서를 생성한다.
+# seed_documents.sh — D3 자료교환체계 Nextcloud 문서 시드 (네이티브)
+# Nextcloud occ 명령으로 사용자/그룹/문서를 생성한다.
 set -e
 
-CONTAINER="nextcloud-app"
-OCC="docker exec -u www-data ${CONTAINER} php occ"
+OCC="sudo -u www-data php /var/www/nextcloud/occ"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-echo "[1/6] Nextcloud 컨테이너 상태 확인..."
-until docker exec ${CONTAINER} php occ status 2>/dev/null | grep -q "installed: true"; do
-    echo "  Nextcloud 초기 설치 대기 중..."
-    sleep 5
-done
+echo "[1/6] Nextcloud 설치 상태 확인..."
+if ! ${OCC} status 2>/dev/null | grep -q "installed: true"; then
+    echo "[오류] Nextcloud가 설치되지 않았습니다. setup.sh를 먼저 실행하세요."
+    exit 1
+fi
 echo "  Nextcloud 준비 완료"
 
 # ──────────────────────────────────────────────
@@ -30,8 +29,7 @@ create_user() {
     for g in "${G[@]}"; do
         group_args="${group_args} --group=${g}"
     done
-    docker exec -e OC_PASS="${pass}" -u www-data ${CONTAINER} \
-        php occ user:add --password-from-env ${group_args} --display-name="${display}" "${user}" 2>/dev/null || true
+    OC_PASS="${pass}" ${OCC} user:add --password-from-env ${group_args} --display-name="${display}" "${user}" 2>/dev/null || true
 }
 
 # [취약점] VULN-D3-01: VPN과 동일한 크리덴셜 (GOV20190847 / 20190847890312)
@@ -49,8 +47,6 @@ create_user "CONTRACTOR01" "Cont@ct2024!"     "(주)보안테크 담당자"   "e
 echo "[4/6] 문서 업로드 (WebDAV)..."
 
 NEXTCLOUD_URL="http://localhost"
-ADMIN_USER="admin"
-ADMIN_PASS="NCadmin@2024!"
 WEBDAV_BASE="${NEXTCLOUD_URL}/remote.php/dav/files/MIL_ADMIN01"
 
 # MIL_ADMIN01 계정으로 폴더 생성
@@ -68,18 +64,24 @@ create_folder "공유문서"
 create_folder "내부규정"
 
 # 군사자료 업로드 (5개 문서)
-for f in "${SCRIPT_DIR}/documents/군사자료/"*; do
-    fname=$(basename "$f")
-    upload_file "군사자료/${fname}" "$f"
-    echo "  업로드: 군사자료/${fname}"
-done
+if [ -d "${SCRIPT_DIR}/documents/군사자료" ]; then
+    for f in "${SCRIPT_DIR}/documents/군사자료/"*; do
+        [ -f "$f" ] || continue
+        fname=$(basename "$f")
+        upload_file "군사자료/${fname}" "$f"
+        echo "  업로드: 군사자료/${fname}"
+    done
+fi
 
 # 공유문서 업로드 (3개 문서)
-for f in "${SCRIPT_DIR}/documents/공유문서/"*; do
-    fname=$(basename "$f")
-    upload_file "공유문서/${fname}" "$f"
-    echo "  업로드: 공유문서/${fname}"
-done
+if [ -d "${SCRIPT_DIR}/documents/공유문서" ]; then
+    for f in "${SCRIPT_DIR}/documents/공유문서/"*; do
+        [ -f "$f" ] || continue
+        fname=$(basename "$f")
+        upload_file "공유문서/${fname}" "$f"
+        echo "  업로드: 공유문서/${fname}"
+    done
+fi
 
 # ──────────────────────────────────────────────
 echo "[5/6] 폴더 공유 설정..."

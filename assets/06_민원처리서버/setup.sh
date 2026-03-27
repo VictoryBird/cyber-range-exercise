@@ -71,6 +71,7 @@ apt-get install -y -qq redis-server > /dev/null 2>&1
 
 # [취약 설정] VULN-06-03: Redis 무인증, 전체 바인딩, 보호 모드 비활성화
 # 올바른 구현: requirepass 설정, bind 127.0.0.1, protected-mode yes
+[ -f "${SCRIPT_DIR}/conf/redis/redis.conf" ] || { echo "[ERROR] 파일 없음: conf/redis/redis.conf"; exit 1; }
 cp "${SCRIPT_DIR}/conf/redis/redis.conf" /etc/redis/redis.conf
 chown redis:redis /etc/redis/redis.conf
 mkdir -p /var/log/redis
@@ -123,6 +124,7 @@ echo "  -> [취약 설정] VULN-06-01: MacroSecurityLevel=0, /tmp를 신뢰 경�
 
 # 서비스 사용자용 LibreOffice 설정 디렉토리 생성
 mkdir -p /home/${SERVICE_USER}/.config/libreoffice/4/user/
+[ -f "${SCRIPT_DIR}/conf/libreoffice/disable_macro_security.xcu" ] || { echo "[ERROR] 파일 없음: conf/libreoffice/disable_macro_security.xcu"; exit 1; }
 cp "${SCRIPT_DIR}/conf/libreoffice/disable_macro_security.xcu" \
    /home/${SERVICE_USER}/.config/libreoffice/4/user/registrymodifications.xcu
 
@@ -201,6 +203,7 @@ sudo -u ${SERVICE_USER} ${INSTALL_DIR}/venv/bin/pip install --upgrade pip > /dev
 # 올바른 구현: Pillow>=10.0.0
 sudo -u ${SERVICE_USER} ${INSTALL_DIR}/venv/bin/pip install \
     -r ${INSTALL_DIR}/requirements.txt > /dev/null 2>&1
+${INSTALL_DIR}/venv/bin/python -c "import celery; print('Dependencies OK')" || { echo "[ERROR] 의존성 설치 실패"; exit 1; }
 
 echo "  -> Python 패키지 설치 완료"
 echo "  -> [취약 설정] VULN-06-02: Pillow==8.4.0 (CVE-2022-22815/16/17)"
@@ -210,15 +213,18 @@ echo "  -> [취약 설정] VULN-06-02: Pillow==8.4.0 (CVE-2022-22815/16/17)"
 # =========================================================================
 echo "[9/${TOTAL_STEPS}] Supervisor 설정 배포..."
 
+[ -f "${SCRIPT_DIR}/conf/supervisor/celery-worker.conf" ] || { echo "[ERROR] 파일 없음: conf/supervisor/celery-worker.conf"; exit 1; }
 cp "${SCRIPT_DIR}/conf/supervisor/celery-worker.conf" \
    /etc/supervisor/conf.d/complaint-worker.conf
 
 # systemd 유닛 배포
+[ -f "${SCRIPT_DIR}/conf/systemd/complaint-worker.service" ] || { echo "[ERROR] 파일 없음: conf/systemd/complaint-worker.service"; exit 1; }
 cp "${SCRIPT_DIR}/conf/systemd/complaint-worker.service" \
    /etc/systemd/system/complaint-worker.service
 
 # Redis systemd 오버라이드
 mkdir -p /etc/systemd/system/redis-server.service.d/
+[ -f "${SCRIPT_DIR}/conf/systemd/redis.service" ] || { echo "[ERROR] 파일 없음: conf/systemd/redis.service"; exit 1; }
 cp "${SCRIPT_DIR}/conf/systemd/redis.service" \
    /etc/systemd/system/redis-server.service.d/override.conf
 
@@ -236,6 +242,11 @@ echo "  -> Supervisor 및 systemd 설정 완료"
 # =========================================================================
 # [10/11] UFW 방화벽 설정
 # =========================================================================
+# Remote DB 연결 확인
+if ! timeout 5 bash -c "echo > /dev/tcp/192.168.100.20/5432" 2>/dev/null; then
+    echo "[WARN] DB 서버(192.168.100.20:5432) 연결 불가 — 나중에 수동 확인 필요"
+fi
+
 echo "[10/${TOTAL_STEPS}] UFW 방화벽 설정..."
 
 ufw --force reset > /dev/null 2>&1

@@ -60,6 +60,10 @@ echo ""
 echo "[5/${TOTAL_STEPS}] OpenVPN 설정 파일 배포..."
 
 # 서버 설정
+[ -f "${SCRIPT_DIR}/conf/openvpn/server.conf" ] || { echo "[ERROR] 파일 없음: conf/openvpn/server.conf"; exit 1; }
+[ -f "${SCRIPT_DIR}/conf/openvpn/ccd/GOV20190847" ] || { echo "[ERROR] 파일 없음: conf/openvpn/ccd/GOV20190847"; exit 1; }
+[ -f "${SCRIPT_DIR}/conf/openvpn/auth/users.txt" ] || { echo "[ERROR] 파일 없음: conf/openvpn/auth/users.txt"; exit 1; }
+[ -f "${SCRIPT_DIR}/conf/openvpn/auth/auth-script.sh" ] || { echo "[ERROR] 파일 없음: conf/openvpn/auth/auth-script.sh"; exit 1; }
 cp "${SCRIPT_DIR}/conf/openvpn/server.conf" /etc/openvpn/server/server.conf
 
 # 클라이언트별 설정
@@ -115,6 +119,7 @@ echo "  -> iptables 규칙 설정 완료"
 # ── [7/9] systemd 서비스 등록 ──
 echo ""
 echo "[7/${TOTAL_STEPS}] systemd 서비스 등록..."
+[ -f "${SCRIPT_DIR}/conf/systemd/openvpn.service" ] || { echo "[ERROR] 파일 없음: conf/systemd/openvpn.service"; exit 1; }
 cp "${SCRIPT_DIR}/conf/systemd/openvpn.service" /etc/systemd/system/openvpn-server.service
 systemctl daemon-reload
 systemctl enable openvpn-server.service

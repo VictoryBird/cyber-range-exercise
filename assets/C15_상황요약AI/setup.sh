@@ -7,6 +7,8 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 # root 권한 확인
 if [ "$EUID" -ne 0 ]; then
     echo "[오류] root 권한으로 실행하세요: sudo bash setup.sh"
@@ -48,12 +50,16 @@ echo "[6/10] Python 가상 환경 설정..."
 python3 -m venv /opt/summary-ai/venv
 source /opt/summary-ai/venv/bin/activate
 pip install fastapi uvicorn requests python-dotenv
+/opt/summary-ai/venv/bin/python -c "import fastapi; import uvicorn; print('Dependencies OK')" || { echo "[ERROR] 의존성 설치 실패"; exit 1; }
 
 # [7/10] 소스 배포
 echo "[7/10] 소스 배포..."
-cp /opt/summary-ai/src/summary_pipeline.py /opt/summary-ai/scripts/
-cp /opt/summary-ai/src/prompt_template.txt /opt/summary-ai/scripts/
-cp /opt/summary-ai/src/summary_api.py /opt/summary-ai/app/
+[ -f "${SCRIPT_DIR}/src/summary_pipeline.py" ] || { echo "[ERROR] 파일 없음: src/summary_pipeline.py"; exit 1; }
+[ -f "${SCRIPT_DIR}/src/prompt_template.txt" ] || { echo "[ERROR] 파일 없음: src/prompt_template.txt"; exit 1; }
+[ -f "${SCRIPT_DIR}/src/summary_api.py" ] || { echo "[ERROR] 파일 없음: src/summary_api.py"; exit 1; }
+cp "${SCRIPT_DIR}/src/summary_pipeline.py" /opt/summary-ai/scripts/
+cp "${SCRIPT_DIR}/src/prompt_template.txt" /opt/summary-ai/scripts/
+cp "${SCRIPT_DIR}/src/summary_api.py" /opt/summary-ai/app/
 
 # [8/10] systemd 서비스 등록
 echo "[8/10] systemd 서비스 등록..."
@@ -82,8 +88,10 @@ WantedBy=multi-user.target
 SVCFILE
 
 # 브리핑 생성 서비스 + 타이머
-cp /opt/summary-ai/conf/systemd/summary-timer.service /etc/systemd/system/summary-gen.service
-cp /opt/summary-ai/conf/systemd/summary-timer.timer /etc/systemd/system/summary-gen.timer
+[ -f "${SCRIPT_DIR}/conf/systemd/summary-timer.service" ] || { echo "[ERROR] 파일 없음: conf/systemd/summary-timer.service"; exit 1; }
+[ -f "${SCRIPT_DIR}/conf/systemd/summary-timer.timer" ] || { echo "[ERROR] 파일 없음: conf/systemd/summary-timer.timer"; exit 1; }
+cp "${SCRIPT_DIR}/conf/systemd/summary-timer.service" /etc/systemd/system/summary-gen.service
+cp "${SCRIPT_DIR}/conf/systemd/summary-timer.timer" /etc/systemd/system/summary-gen.timer
 
 # [9/10] 서비스 활성화
 echo "[9/10] 서비스 활성화..."

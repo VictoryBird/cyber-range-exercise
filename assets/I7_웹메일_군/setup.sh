@@ -49,6 +49,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y postfix
 # ==========================================================
 echo "[3/${TOTAL_STEPS}] Postfix 설정 파일 배포..."
 # ==========================================================
+[ -f "${SCRIPT_DIR}/conf/postfix/main.cf" ] || { echo "[ERROR] 파일 없음: conf/postfix/main.cf"; exit 1; }
 cp conf/postfix/main.cf /etc/postfix/main.cf
 
 # 가상 메일박스 매핑 파일 생성
@@ -72,6 +73,12 @@ echo "[4/${TOTAL_STEPS}] Dovecot 설치 및 설정..."
 # ==========================================================
 apt-get install -y dovecot-core dovecot-imapd dovecot-lmtpd
 
+[ -f "${SCRIPT_DIR}/conf/dovecot/dovecot.conf" ] || { echo "[ERROR] 파일 없음: conf/dovecot/dovecot.conf"; exit 1; }
+[ -f "${SCRIPT_DIR}/conf/dovecot/users" ] || { echo "[ERROR] 파일 없음: conf/dovecot/users"; exit 1; }
+[ -f "${SCRIPT_DIR}/conf/dovecot/conf.d/10-auth.conf" ] || { echo "[ERROR] 파일 없음: conf/dovecot/conf.d/10-auth.conf"; exit 1; }
+[ -f "${SCRIPT_DIR}/conf/dovecot/conf.d/10-mail.conf" ] || { echo "[ERROR] 파일 없음: conf/dovecot/conf.d/10-mail.conf"; exit 1; }
+[ -f "${SCRIPT_DIR}/conf/dovecot/conf.d/10-master.conf" ] || { echo "[ERROR] 파일 없음: conf/dovecot/conf.d/10-master.conf"; exit 1; }
+[ -f "${SCRIPT_DIR}/conf/dovecot/conf.d/auth-passwdfile.conf.ext" ] || { echo "[ERROR] 파일 없음: conf/dovecot/conf.d/auth-passwdfile.conf.ext"; exit 1; }
 cp conf/dovecot/dovecot.conf /etc/dovecot/dovecot.conf
 cp conf/dovecot/users /etc/dovecot/users
 cp conf/dovecot/conf.d/10-auth.conf /etc/dovecot/conf.d/10-auth.conf
@@ -137,6 +144,7 @@ if [ ! -d /var/lib/roundcube ]; then
 fi
 
 # Roundcube 설정 배포
+[ -f "${SCRIPT_DIR}/conf/roundcube/config.inc.php" ] || { echo "[ERROR] 파일 없음: conf/roundcube/config.inc.php"; exit 1; }
 cp conf/roundcube/config.inc.php /var/lib/roundcube/config/config.inc.php
 
 # SQLite DB 초기화

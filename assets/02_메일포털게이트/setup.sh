@@ -48,14 +48,18 @@ apt-get install -y -qq nginx openssl ufw
 echo "[3/5] Nginx 설정 배포..."
 
 # 메인 설정
+[ -f "${SCRIPT_DIR}/conf/nginx/nginx.conf" ] || { echo "[ERROR] 파일 없음: conf/nginx/nginx.conf"; exit 1; }
 cp ${SCRIPT_DIR}/conf/nginx/nginx.conf /etc/nginx/nginx.conf
 
 # 스니펫
 mkdir -p /etc/nginx/snippets
+[ -f "${SCRIPT_DIR}/conf/nginx/snippets/ssl-params.conf" ] || { echo "[ERROR] 파일 없음: conf/nginx/snippets/ssl-params.conf"; exit 1; }
 cp ${SCRIPT_DIR}/conf/nginx/snippets/ssl-params.conf /etc/nginx/snippets/
+[ -f "${SCRIPT_DIR}/conf/nginx/snippets/proxy-params.conf" ] || { echo "[ERROR] 파일 없음: conf/nginx/snippets/proxy-params.conf"; exit 1; }
 cp ${SCRIPT_DIR}/conf/nginx/snippets/proxy-params.conf /etc/nginx/snippets/
 
 # 사이트 설정
+[ -f "${SCRIPT_DIR}/conf/nginx/sites-available/webmail.conf" ] || { echo "[ERROR] 파일 없음: conf/nginx/sites-available/webmail.conf"; exit 1; }
 cp ${SCRIPT_DIR}/conf/nginx/sites-available/webmail.conf /etc/nginx/sites-available/
 ln -sf /etc/nginx/sites-available/webmail.conf /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default

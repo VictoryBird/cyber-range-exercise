@@ -52,6 +52,9 @@ apt-get install -y -qq python3.11 python3.11-venv python3-pip > /dev/null
 echo ""
 echo "[3/6] 애플리케이션 배포..."
 mkdir -p /opt/plc-simulator
+[ -f "$SCRIPT_DIR/src/plc_simulator.py" ] || { echo "[ERROR] 파일 없음: src/plc_simulator.py"; exit 1; }
+[ -f "$SCRIPT_DIR/src/requirements.txt" ] || { echo "[ERROR] 파일 없음: src/requirements.txt"; exit 1; }
+[ -f "$SCRIPT_DIR/.env.example" ] || { echo "[ERROR] 파일 없음: .env.example"; exit 1; }
 cp "$SCRIPT_DIR/src/plc_simulator.py" /opt/plc-simulator/plc_simulator.py
 cp "$SCRIPT_DIR/src/requirements.txt" /opt/plc-simulator/requirements.txt
 cp "$SCRIPT_DIR/.env.example" /opt/plc-simulator/.env
@@ -60,6 +63,7 @@ cp "$SCRIPT_DIR/.env.example" /opt/plc-simulator/.env
 python3.11 -m venv /opt/plc-simulator/venv
 /opt/plc-simulator/venv/bin/pip install --upgrade pip -q
 /opt/plc-simulator/venv/bin/pip install -r /opt/plc-simulator/requirements.txt -q
+/opt/plc-simulator/venv/bin/python -c "import flask; print('Dependencies OK')" || { echo "[ERROR] 의존성 설치 실패"; exit 1; }
 
 # ── [4/6] 로그 디렉토리 생성 ──
 echo ""
@@ -69,6 +73,7 @@ mkdir -p /var/log/plc-simulator
 # ── [5/6] systemd 서비스 등록 ──
 echo ""
 echo "[5/6] systemd 서비스 등록..."
+[ -f "$SCRIPT_DIR/conf/systemd/plc-simulator.service" ] || { echo "[ERROR] 파일 없음: conf/systemd/plc-simulator.service"; exit 1; }
 cp "$SCRIPT_DIR/conf/systemd/plc-simulator.service" /etc/systemd/system/plc-simulator.service
 systemctl daemon-reload
 systemctl enable --now plc-simulator

@@ -54,9 +54,11 @@ if [ ! -f /opt/minio/minio ]; then
     wget -q https://dl.min.io/server/minio/release/linux-amd64/minio -O /opt/minio/minio
     chmod +x /opt/minio/minio
 fi
+[ -f "${SCRIPT_DIR}/conf/minio/minio.env" ] || { echo "[ERROR] 파일 없음: conf/minio/minio.env"; exit 1; }
 cp ${SCRIPT_DIR}/conf/minio/minio.env /opt/minio/minio.env
 chown -R minio-user:minio-user /opt/minio /var/lib/minio
 
+[ -f "${SCRIPT_DIR}/conf/systemd/minio.service" ] || { echo "[ERROR] 파일 없음: conf/systemd/minio.service"; exit 1; }
 cp ${SCRIPT_DIR}/conf/systemd/minio.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable --now minio
@@ -70,9 +72,11 @@ cp ${SCRIPT_DIR}/.env.example /opt/minwon/.env
 python3 -m venv /opt/minwon/venv
 /opt/minwon/venv/bin/pip install --quiet --upgrade pip
 /opt/minwon/venv/bin/pip install --quiet -r /opt/minwon/backend/requirements.txt
+/opt/minwon/venv/bin/python -c "import fastapi; import uvicorn; print('Dependencies OK')" || { echo "[ERROR] 의존성 설치 실패"; exit 1; }
 
 chown -R minwon:minwon /opt/minwon /var/log/minwon
 
+[ -f "${SCRIPT_DIR}/conf/systemd/minwon-api.service" ] || { echo "[ERROR] 파일 없음: conf/systemd/minwon-api.service"; exit 1; }
 cp ${SCRIPT_DIR}/conf/systemd/minwon-api.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable --now minwon-api
@@ -89,6 +93,7 @@ rm -rf /tmp/minwon-frontend
 
 # ===== [6] Nginx 설정 =====
 echo "[6/8] Nginx 설정..."
+[ -f "${SCRIPT_DIR}/conf/nginx/minwon.conf" ] || { echo "[ERROR] 파일 없음: conf/nginx/minwon.conf"; exit 1; }
 cp ${SCRIPT_DIR}/conf/nginx/minwon.conf /etc/nginx/sites-available/
 ln -sf /etc/nginx/sites-available/minwon.conf /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default

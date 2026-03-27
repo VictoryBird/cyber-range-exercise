@@ -51,6 +51,9 @@ cp ${PG_CONF_DIR}/postgresql.conf ${PG_CONF_DIR}/postgresql.conf.bak
 cp ${PG_CONF_DIR}/pg_hba.conf ${PG_CONF_DIR}/pg_hba.conf.bak
 
 # 취약한 설정 배포
+[ -f "${SCRIPT_DIR}/conf/postgresql.conf" ] || { echo "[ERROR] 파일 없음: conf/postgresql.conf"; exit 1; }
+[ -f "${SCRIPT_DIR}/conf/pg_hba.conf" ] || { echo "[ERROR] 파일 없음: conf/pg_hba.conf"; exit 1; }
+[ -f "${SCRIPT_DIR}/conf/pgaudit.conf" ] || { echo "[ERROR] 파일 없음: conf/pgaudit.conf"; exit 1; }
 cp ${SCRIPT_DIR}/conf/postgresql.conf ${PG_CONF_DIR}/postgresql.conf
 cp ${SCRIPT_DIR}/conf/pg_hba.conf ${PG_CONF_DIR}/pg_hba.conf
 mkdir -p ${PG_CONF_DIR}/conf.d
@@ -65,6 +68,7 @@ systemctl restart postgresql
 systemctl enable postgresql
 
 # 역할 생성
+[ -f "${SCRIPT_DIR}/sql/00_roles.sql" ] || { echo "[ERROR] SQL 파일 없음: sql/00_roles.sql"; exit 1; }
 sudo -u postgres psql -f ${SCRIPT_DIR}/sql/00_roles.sql
 
 # 데이터베이스 생성
@@ -74,12 +78,18 @@ sudo -u postgres psql -c "CREATE DATABASE complaint_db OWNER postgres ENCODING '
 
 # DDL 실행
 echo "[5/7] 스키마 생성 중..."
+[ -f "${SCRIPT_DIR}/sql/01_mois_portal_ddl.sql" ] || { echo "[ERROR] SQL 파일 없음: sql/01_mois_portal_ddl.sql"; exit 1; }
+[ -f "${SCRIPT_DIR}/sql/02_agency_db_ddl.sql" ] || { echo "[ERROR] SQL 파일 없음: sql/02_agency_db_ddl.sql"; exit 1; }
+[ -f "${SCRIPT_DIR}/sql/03_complaint_db_ddl.sql" ] || { echo "[ERROR] SQL 파일 없음: sql/03_complaint_db_ddl.sql"; exit 1; }
 sudo -u postgres psql -f ${SCRIPT_DIR}/sql/01_mois_portal_ddl.sql
 sudo -u postgres psql -f ${SCRIPT_DIR}/sql/02_agency_db_ddl.sql
 sudo -u postgres psql -f ${SCRIPT_DIR}/sql/03_complaint_db_ddl.sql
 
 # 시드 데이터 삽입
 echo "[6/7] 시드 데이터 삽입 중..."
+[ -f "${SCRIPT_DIR}/sql/10_mois_portal_seed.sql" ] || { echo "[ERROR] SQL 파일 없음: sql/10_mois_portal_seed.sql"; exit 1; }
+[ -f "${SCRIPT_DIR}/sql/11_agency_db_seed.sql" ] || { echo "[ERROR] SQL 파일 없음: sql/11_agency_db_seed.sql"; exit 1; }
+[ -f "${SCRIPT_DIR}/sql/12_complaint_db_seed.sql" ] || { echo "[ERROR] SQL 파일 없음: sql/12_complaint_db_seed.sql"; exit 1; }
 sudo -u postgres psql -f ${SCRIPT_DIR}/sql/10_mois_portal_seed.sql
 sudo -u postgres psql -f ${SCRIPT_DIR}/sql/11_agency_db_seed.sql
 sudo -u postgres psql -f ${SCRIPT_DIR}/sql/12_complaint_db_seed.sql

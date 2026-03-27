@@ -83,6 +83,10 @@ echo "[5/9] 디렉토리 구조 생성 및 소스 복사..."
 mkdir -p "${APP_DIR}" "${LOG_DIR}" "${INSTALL_DIR}/scripts" "${INSTALL_DIR}/config"
 
 # 소스 복사
+[ -f "${SCRIPT_DIR}/src/backend/main.py" ] || { echo "[ERROR] 파일 없음: src/backend/main.py"; exit 1; }
+[ -f "${SCRIPT_DIR}/src/backend/config.py" ] || { echo "[ERROR] 파일 없음: src/backend/config.py"; exit 1; }
+[ -f "${SCRIPT_DIR}/src/backend/requirements.txt" ] || { echo "[ERROR] 파일 없음: src/backend/requirements.txt"; exit 1; }
+[ -f "${SCRIPT_DIR}/scripts/seed_data.py" ] || { echo "[ERROR] 파일 없음: scripts/seed_data.py"; exit 1; }
 cp "${SCRIPT_DIR}/src/backend/main.py" "${APP_DIR}/"
 cp "${SCRIPT_DIR}/src/backend/config.py" "${APP_DIR}/"
 cp "${SCRIPT_DIR}/src/backend/requirements.txt" "${APP_DIR}/"
@@ -111,10 +115,12 @@ python3 -m venv "${INSTALL_DIR}/venv"
 "${INSTALL_DIR}/venv/bin/pip" install --quiet --upgrade pip
 "${INSTALL_DIR}/venv/bin/pip" install --quiet -r "${APP_DIR}/requirements.txt"
 chown -R historian:historian "${INSTALL_DIR}/venv"
+"${INSTALL_DIR}/venv/bin/python" -c "import fastapi; import uvicorn; print('Dependencies OK')" || { echo "[ERROR] 의존성 설치 실패"; exit 1; }
 echo "  [+] Python 패키지 설치 완료"
 
 # ---------- [7/9] systemd 서비스 등록 ----------
 echo "[7/9] systemd 서비스 등록..."
+[ -f "${SCRIPT_DIR}/conf/systemd/historian-api.service" ] || { echo "[ERROR] 파일 없음: conf/systemd/historian-api.service"; exit 1; }
 cp "${SCRIPT_DIR}/conf/systemd/historian-api.service" /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable historian-api --quiet

@@ -76,6 +76,7 @@ chmod 666 ${WEB_ROOT}/logs/download.log
 # ==========================================================
 echo "[7/${TOTAL_STEPS}] Nginx 설정..."
 # ==========================================================
+[ -f "${SCRIPT_DIR}/conf/nginx/update-server.conf" ] || { echo "[ERROR] 파일 없음: conf/nginx/update-server.conf"; exit 1; }
 cp conf/nginx/update-server.conf /etc/nginx/sites-available/update-server
 ln -sf /etc/nginx/sites-available/update-server /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default

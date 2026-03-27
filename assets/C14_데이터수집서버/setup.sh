@@ -7,6 +7,8 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 # root 권한 확인
 if [ "$EUID" -ne 0 ]; then
     echo "[오류] root 권한으로 실행하세요: sudo bash setup.sh"
@@ -44,23 +46,26 @@ mkdir -p /opt/datacollector/{app,app/routers,logs,config}
 echo "[5/9] Python 가상 환경 설정..."
 python3 -m venv /opt/datacollector/venv
 source /opt/datacollector/venv/bin/activate
-pip install -r /opt/datacollector/requirements.txt
+pip install -r "${SCRIPT_DIR}/requirements.txt"
+/opt/datacollector/venv/bin/python -c "import fastapi; import uvicorn; print('Dependencies OK')" || { echo "[ERROR] 의존성 설치 실패"; exit 1; }
 
 # [6/9] 애플리케이션 배포
 echo "[6/9] 애플리케이션 배포..."
-cp /opt/datacollector/src/backend/main.py /opt/datacollector/app/
-cp /opt/datacollector/src/backend/config.py /opt/datacollector/app/
-cp /opt/datacollector/src/backend/database.py /opt/datacollector/app/
-cp /opt/datacollector/src/backend/routers/__init__.py /opt/datacollector/app/routers/
-cp /opt/datacollector/src/backend/routers/events.py /opt/datacollector/app/routers/
+cp "${SCRIPT_DIR}/src/backend/main.py" /opt/datacollector/app/
+cp "${SCRIPT_DIR}/src/backend/config.py" /opt/datacollector/app/
+cp "${SCRIPT_DIR}/src/backend/database.py" /opt/datacollector/app/
+cp "${SCRIPT_DIR}/src/backend/routers/__init__.py" /opt/datacollector/app/routers/
+cp "${SCRIPT_DIR}/src/backend/routers/events.py" /opt/datacollector/app/routers/
 
 # [7/9] 시드 데이터 적용
 echo "[7/9] 시드 데이터 적용..."
-sudo -u postgres psql -d events_db -f /opt/datacollector/sql/init.sql
+[ -f "${SCRIPT_DIR}/sql/init.sql" ] || { echo "[ERROR] SQL 파일 없음: sql/init.sql"; exit 1; }
+sudo -u postgres psql -d events_db -f "${SCRIPT_DIR}/sql/init.sql"
 
 # [8/9] systemd 서비스 등록
 echo "[8/9] systemd 서비스 등록..."
-cp /opt/datacollector/conf/systemd/datacollector.service /etc/systemd/system/
+[ -f "${SCRIPT_DIR}/conf/systemd/datacollector.service" ] || { echo "[ERROR] 파일 없음: conf/systemd/datacollector.service"; exit 1; }
+cp "${SCRIPT_DIR}/conf/systemd/datacollector.service" /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable datacollector
 systemctl start datacollector

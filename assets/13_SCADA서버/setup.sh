@@ -104,6 +104,9 @@ tar xzf "apache-tomcat-${TOMCAT_VER}.tar.gz"
 ln -sf "/opt/apache-tomcat-${TOMCAT_VER}" /opt/tomcat
 
 # Tomcat 설정 파일 배포
+[ -f "${SCRIPT_DIR}/conf/tomcat/server.xml" ] || { echo "[ERROR] 파일 없음: conf/tomcat/server.xml"; exit 1; }
+[ -f "${SCRIPT_DIR}/conf/tomcat/tomcat-users.xml" ] || { echo "[ERROR] 파일 없음: conf/tomcat/tomcat-users.xml"; exit 1; }
+[ -f "${SCRIPT_DIR}/conf/systemd/tomcat.service" ] || { echo "[ERROR] 파일 없음: conf/systemd/tomcat.service"; exit 1; }
 cp "${SCRIPT_DIR}/conf/tomcat/server.xml" /opt/tomcat/conf/server.xml
 
 # [취약점] VULN-13-01: 기본 인증 정보 admin/admin으로 Tomcat Manager 접근 가능
@@ -193,6 +196,9 @@ npm install --save node-red-dashboard > /dev/null 2>&1
 
 # [취약점] VULN-13-02: Node-RED 인증 비활성화 설정 배포
 # [올바른 설정] adminAuth를 활성화해야 한다.
+[ -f "${SCRIPT_DIR}/conf/nodered/settings.js" ] || { echo "[ERROR] 파일 없음: conf/nodered/settings.js"; exit 1; }
+[ -f "${SCRIPT_DIR}/conf/nodered/flows.json" ] || { echo "[ERROR] 파일 없음: conf/nodered/flows.json"; exit 1; }
+[ -f "${SCRIPT_DIR}/conf/systemd/nodered.service" ] || { echo "[ERROR] 파일 없음: conf/systemd/nodered.service"; exit 1; }
 cp "${SCRIPT_DIR}/conf/nodered/settings.js" "${NODERED_DIR}/settings.js"
 
 # Node-RED 플로우 배포 (PLC 폴링 → SCADA-LTS 전달)

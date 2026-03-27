@@ -78,6 +78,7 @@ echo "[4/9] Python 백엔드 설치 중..."
 python3 -m venv ${APP_DIR}/venv
 ${APP_DIR}/venv/bin/pip install --quiet --upgrade pip
 ${APP_DIR}/venv/bin/pip install --quiet -r ${APP_DIR}/backend/requirements.txt
+${APP_DIR}/venv/bin/python -c "import fastapi; import uvicorn; print('Dependencies OK')" || { echo "[ERROR] 의존성 설치 실패"; exit 1; }
 
 # ===== [6] 프론트엔드 빌드 =====
 echo "[5/9] 프론트엔드 빌드 중..."
@@ -103,6 +104,7 @@ fi
 
 # ===== [8] Nginx 설정 =====
 echo "[7/9] Nginx 설정 중..."
+[ -f "${SCRIPT_DIR}/src/config/nginx/mois-portal.conf" ] || { echo "[ERROR] 파일 없음: src/config/nginx/mois-portal.conf"; exit 1; }
 cp ${SCRIPT_DIR}/src/config/nginx/mois-portal.conf /etc/nginx/sites-available/mois-portal.conf
 ln -sf /etc/nginx/sites-available/mois-portal.conf /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
@@ -114,6 +116,11 @@ cp ${SCRIPT_DIR}/src/config/systemd/mois-portal.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable mois-portal
 systemctl start mois-portal
+
+# ===== Remote DB 연결 확인 =====
+if ! timeout 5 bash -c "echo > /dev/tcp/192.168.100.20/5432" 2>/dev/null; then
+    echo "[WARN] DB 서버(192.168.100.20:5432) 연결 불가 — 나중에 수동 확인 필요"
+fi
 
 # ===== [10] 방화벽 설정 =====
 echo "[9/9] 방화벽 설정 중..."

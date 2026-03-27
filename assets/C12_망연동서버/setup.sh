@@ -7,6 +7,8 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 # root 권한 확인
 if [ "$EUID" -ne 0 ]; then
     echo "[오류] root 권한으로 실행하세요: sudo bash setup.sh"
@@ -34,17 +36,21 @@ mkdir -p /opt/relay/{scripts,data,logs,config}
 echo "[4/8] Python 가상 환경 설정..."
 python3 -m venv /opt/relay/venv
 source /opt/relay/venv/bin/activate
-pip install -r /opt/relay/src/requirements.txt
+[ -f "${SCRIPT_DIR}/src/requirements.txt" ] || { echo "[ERROR] 파일 없음: src/requirements.txt"; exit 1; }
+pip install -r "${SCRIPT_DIR}/src/requirements.txt"
 
 # [5/8] 소스 배포
 echo "[5/8] 소스 배포..."
-cp /opt/relay/src/sync_events.py /opt/relay/scripts/
+[ -f "${SCRIPT_DIR}/src/sync_events.py" ] || { echo "[ERROR] 파일 없음: src/sync_events.py"; exit 1; }
+cp "${SCRIPT_DIR}/src/sync_events.py" /opt/relay/scripts/
 chmod +x /opt/relay/scripts/sync_events.py
 
 # [6/8] systemd 서비스 등록
 echo "[6/8] systemd 서비스 등록..."
-cp /opt/relay/conf/systemd/relay-sync.service /etc/systemd/system/
-cp /opt/relay/conf/systemd/relay-sync.timer /etc/systemd/system/
+[ -f "${SCRIPT_DIR}/conf/systemd/relay-sync.service" ] || { echo "[ERROR] 파일 없음: conf/systemd/relay-sync.service"; exit 1; }
+[ -f "${SCRIPT_DIR}/conf/systemd/relay-sync.timer" ] || { echo "[ERROR] 파일 없음: conf/systemd/relay-sync.timer"; exit 1; }
+cp "${SCRIPT_DIR}/conf/systemd/relay-sync.service" /etc/systemd/system/
+cp "${SCRIPT_DIR}/conf/systemd/relay-sync.timer" /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable relay-sync.timer
 systemctl start relay-sync.timer
