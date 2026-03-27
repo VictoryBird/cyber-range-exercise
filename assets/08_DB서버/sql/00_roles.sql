@@ -21,3 +21,9 @@ CREATE ROLE complaint_rw
     WITH LOGIN PASSWORD 'Compl@int_RW_2026!'
     NOSUPERUSER NOCREATEDB NOCREATEROLE;
 COMMENT ON ROLE complaint_rw IS '민원 처리 읽기/쓰기 계정';
+
+-- 외부 포털 서버 전용 계정 (01번 자산에서 사용)
+CREATE ROLE portal_app
+    WITH LOGIN PASSWORD 'P0rtal#DB@2026!'
+    NOSUPERUSER NOCREATEDB NOCREATEROLE;
+COMMENT ON ROLE portal_app IS '외부 포털 서버 전용 계정';
