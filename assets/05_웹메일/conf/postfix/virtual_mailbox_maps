@@ -1,0 +1,14 @@
+# 사용자@도메인 → Maildir 경로 매핑
+hong.gildong@mois.local     mois.local/hong.gildong/
+kim.chulsoo@mois.local      mois.local/kim.chulsoo/
+lee.younghee@mois.local     mois.local/lee.younghee/
+park.minsoo@mois.local      mois.local/park.minsoo/
+choi.jihye@mois.local       mois.local/choi.jihye/
+jung.dongwook@mois.local    mois.local/jung.dongwook/
+yoon.sera@mois.local        mois.local/yoon.sera/
+kang.jiwon@mois.local       mois.local/kang.jiwon/
+shin.hyunwoo@mois.local     mois.local/shin.hyunwoo/
+han.minji@mois.local        mois.local/han.minji/
+seo.junhyuk@mois.local      mois.local/seo.junhyuk/
+admin@mois.local            mois.local/admin/
+helpdesk@mois.local         mois.local/helpdesk/

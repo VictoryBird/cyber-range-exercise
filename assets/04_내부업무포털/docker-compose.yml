@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: mois_intranet
+      POSTGRES_USER: intranet_app
+      POSTGRES_PASSWORD: "Intr@n3t#DB2026!"
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U intranet_app -d mois_intranet"]
+      interval: 5s
+      retries: 10
+      start_period: 10s
+
+  portal:
+    image: mois-intranet-portal:latest
+    build: .
+    environment:
+      - DJANGO_SECRET_KEY=django-insecure-mois-intranet-key-2026-do-not-use-in-prod
+      - DJANGO_DEBUG=True
+      - DJANGO_ALLOWED_HOSTS=intranet.mois.local,192.168.100.10,localhost,127.0.0.1
+      - ENVIRONMENT=development
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=mois_intranet
+      - DB_USER=intranet_app
+      - "DB_PASSWORD=Intr@n3t#DB2026!"
+      - AD_LDAP_URI=ldap://192.168.100.50:389
+      - AD_BIND_DN=cn=svc_intranet,ou=ServiceAccounts,dc=corp,dc=mois,dc=local
+      - AD_BIND_PASSWORD=Sv(Ldap#2026
+      - AD_USER_SEARCH_BASE=ou=People,dc=corp,dc=mois,dc=local
+      - LOG_DIR=/var/log/intranet-portal
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "
+        python manage.py makemigrations accounts notices approvals work_requests search admin_api core --noinput 2>/dev/null;
+        python manage.py migrate --noinput &&
+        python manage.py collectstatic --noinput --clear 2>/dev/null;
+        python manage.py seed_data 2>/dev/null || true;
+        gunicorn intranet_portal.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 120
+      "
+
+  nginx:
+    image: nginx:1.24-alpine
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - ./conf/nginx/intranet-docker.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - portal
+
+volumes:
+  pgdata:

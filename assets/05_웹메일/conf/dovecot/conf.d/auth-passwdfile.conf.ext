@@ -1,0 +1,14 @@
+# ============================================================
+# Dovecot 패스워드 파일 인증 (AD 미가용 시 폴백용)
+# 사용법: 10-auth.conf에서 auth-ldap.conf.ext 대신 이 파일을 include
+# ============================================================
+
+passdb {
+  driver = passwd-file
+  args = scheme=SHA512-CRYPT username_format=%n /etc/dovecot/users
+}
+
+userdb {
+  driver = static
+  args = uid=5000 gid=5000 home=/var/mail/vhosts/%d/%n
+}

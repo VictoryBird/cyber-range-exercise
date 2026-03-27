@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}{{ notice.title }}{% endblock %}
+{% block nav_notices %}active{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+    <a href="{% url 'notice-list' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> 목록으로
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header" style="background-color: #1A4B8C; color: white;">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                {% if notice.is_pinned %}<span class="badge bg-danger me-1">공지</span>{% endif %}
+                {{ notice.title }}
+            </h5>
+            <span class="badge bg-light text-dark">{{ notice.category }}</span>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3 pb-3 border-bottom">
+            <div class="col-md-3">
+                <small class="text-muted">작성자</small><br>
+                <strong>{{ notice.author.get_full_name|default:notice.author.username }}</strong>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted">작성 부서</small><br>
+                <strong>{{ notice.department }}</strong>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted">작성일</small><br>
+                <strong>{{ notice.created_at|date:"Y-m-d H:i" }}</strong>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted">조회수</small><br>
+                <strong>{{ notice.view_count }}</strong>
+            </div>
+        </div>
+
+        <div class="notice-content" style="min-height: 200px; white-space: pre-wrap;">{{ notice.content }}</div>
+    </div>
+</div>
+{% endblock %}

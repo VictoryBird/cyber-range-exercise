@@ -1,0 +1,29 @@
+From: helpdesk@mois.local
+To: seo.junhyuk@mois.local
+Date: Mon, 16 Mar 2026 13:00:00 +0900
+Subject: =?UTF-8?B?UkU6IFvtl6ztnITrjbDsiqTtgqxdIFZQTiDsoJHsho0g7ISk7KCVIOyIqOuCtCAo7Yuw7LyHICNIRC0yMDI2LTAzMjgp?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Message-ID: <20260316130000.010@mail.mois.local>
+X-Mailer: MOIS Internal Mail System
+
+서준혁님, 안녕하세요.
+
+외부 출장 시 VPN 접속 설정을 안내드립니다.
+
+1. VPN 클라이언트: OpenVPN Connect
+2. 접속 주소: vpn.mois.valdoria.gov
+3. 포트: 443/tcp
+4. 인증: AD 계정과 동일 (seo.junhyuk / 기존 비밀번호)
+5. 설정 파일: 첨부된 mois-vpn.ovpn 사용
+
+※ VPN 접속 후 접근 가능한 시스템:
+   - 업무 포털 (192.168.100.10)
+   - 웹메일 (192.168.100.11)
+   - AI 도우미 (192.168.100.xx:3000)
+
+※ DB서버, AD서버 등 인프라 시스템은 VPN으로 접근 불가합니다.
+
+감사합니다.
+IT 헬프데스크

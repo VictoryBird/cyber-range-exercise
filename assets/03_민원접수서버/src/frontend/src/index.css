@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+  color: #1a1a2e;
+  background-color: #f8f9fa;
+}
+
+.btn-primary {
+  @apply bg-gov-700 text-white px-6 py-3 rounded-lg font-semibold
+         hover:bg-gov-800 transition-colors duration-200;
+}
+
+.btn-outline {
+  @apply border-2 border-gov-700 text-gov-700 px-6 py-3 rounded-lg font-semibold
+         hover:bg-gov-700 hover:text-white transition-colors duration-200;
+}
+
+.card {
+  @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6;
+}
+
+.badge {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+}
+
+.badge-received { @apply bg-blue-100 text-blue-700; }
+.badge-processing { @apply bg-amber-100 text-amber-700; }
+.badge-completed { @apply bg-green-100 text-green-700; }
+.badge-rejected { @apply bg-red-100 text-red-700; }

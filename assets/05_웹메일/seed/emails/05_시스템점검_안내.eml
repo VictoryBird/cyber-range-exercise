@@ -1,0 +1,25 @@
+From: seo.junhyuk@mois.local
+To: all-staff@mois.local
+Date: Thu, 19 Mar 2026 17:00:00 +0900
+Subject: =?UTF-8?B?W+yViOuCtF0gMy8yMijsnbwpIOyLnOyKpO2FnCDsoJXquLDsoJDqsoDqs7Xsp4A=?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Message-ID: <20260319170000.005@mail.mois.local>
+X-Mailer: MOIS Internal Mail System
+
+안녕하십니까, 정보화담당관실입니다.
+
+아래와 같이 정기 시스템 점검을 실시합니다.
+
+- 일시: 2026년 3월 22일(일) 02:00 ~ 06:00
+- 대상 시스템:
+  * 업무 포털 (192.168.100.10)
+  * 웹메일 서버 (192.168.100.11)
+  * DB 서버 (192.168.100.20)
+  * AD 인증 서버 (192.168.100.50)
+- 영향: 해당 시간 동안 서비스 일시 중단
+
+긴급 문의: IT 헬프데스크 (helpdesk@mois.local)
+
+서준혁 드림

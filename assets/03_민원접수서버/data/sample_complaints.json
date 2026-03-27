@@ -1,0 +1,42 @@
+[
+  {
+    "title": "도로 파손 신고",
+    "category": "infrastructure",
+    "content": "발도리아 중앙로 120번지 앞 도로 포장이 심하게 파손되어 차량 통행에 위험합니다.",
+    "submitter_name": "홍길동",
+    "submitter_phone": "010-1234-5678",
+    "submitter_email": "hong@example.com"
+  },
+  {
+    "title": "가로등 미점등 신고",
+    "category": "infrastructure",
+    "content": "동구 평화로 55번지 일대 가로등 3기가 미점등 상태입니다.",
+    "submitter_name": "김민수",
+    "submitter_phone": "010-2345-6789",
+    "submitter_email": "kim.ms@example.com"
+  },
+  {
+    "title": "소음 민원",
+    "category": "environment",
+    "content": "인근 건축 공사장에서 야간(22시 이후) 소음이 발생하고 있습니다.",
+    "submitter_name": "박지훈",
+    "submitter_phone": "010-3456-7890",
+    "submitter_email": "jihun@example.com"
+  },
+  {
+    "title": "쓰레기 무단 투기 신고",
+    "category": "environment",
+    "content": "북구 통일로 100번지 공터에 건축 폐기물이 무단 투기되어 있습니다.",
+    "submitter_name": "이동민",
+    "submitter_phone": "010-4567-8901",
+    "submitter_email": "dongmin@example.com"
+  },
+  {
+    "title": "복지 서비스 문의",
+    "category": "welfare",
+    "content": "장애인 활동지원 서비스 신청 방법을 알려주세요.",
+    "submitter_name": "정하은",
+    "submitter_phone": "010-5678-9012",
+    "submitter_email": "haeun@example.com"
+  }
+]

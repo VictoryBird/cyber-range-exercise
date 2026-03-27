@@ -1,0 +1,17 @@
+# Dovecot passwd-file 형식 사용자 목록 (AD 미가용 시 폴백용)
+# 형식: user:{SCHEME}password_hash:uid:gid::home::
+# 비밀번호는 doveadm pw -s SHA512-CRYPT 으로 생성
+# 아래는 테스트용 PLAIN 비밀번호 (운영 시 해시 사용 필수)
+hong.gildong:{PLAIN}Mois2026!hong:5000:5000::/var/mail/vhosts/mois.local/hong.gildong::
+kim.chulsoo:{PLAIN}Mois2026!kim:5000:5000::/var/mail/vhosts/mois.local/kim.chulsoo::
+lee.younghee:{PLAIN}Mois2026!lee:5000:5000::/var/mail/vhosts/mois.local/lee.younghee::
+park.minsoo:{PLAIN}Mois2026!park:5000:5000::/var/mail/vhosts/mois.local/park.minsoo::
+choi.jihye:{PLAIN}Mois2026!choi:5000:5000::/var/mail/vhosts/mois.local/choi.jihye::
+jung.dongwook:{PLAIN}Mois2026!jung:5000:5000::/var/mail/vhosts/mois.local/jung.dongwook::
+yoon.sera:{PLAIN}Mois2026!yoon:5000:5000::/var/mail/vhosts/mois.local/yoon.sera::
+kang.jiwon:{PLAIN}Mois2026!kang:5000:5000::/var/mail/vhosts/mois.local/kang.jiwon::
+shin.hyunwoo:{PLAIN}Mois2026!shin:5000:5000::/var/mail/vhosts/mois.local/shin.hyunwoo::
+han.minji:{PLAIN}Mois2026!han:5000:5000::/var/mail/vhosts/mois.local/han.minji::
+seo.junhyuk:{PLAIN}Admin2026!seo:5000:5000::/var/mail/vhosts/mois.local/seo.junhyuk::
+admin:{PLAIN}MailAdmin2026!:5000:5000::/var/mail/vhosts/mois.local/admin::
+helpdesk:{PLAIN}Helpdesk2026!:5000:5000::/var/mail/vhosts/mois.local/helpdesk::

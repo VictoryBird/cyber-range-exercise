@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}{{ work_request.title }}{% endblock %}
+{% block nav_work_requests %}active{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+    <a href="{% url 'work-request-list' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> 목록으로
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header" style="background-color: #1A4B8C; color: white;">
+        <h5 class="mb-0">{{ work_request.title }}</h5>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3 pb-3 border-bottom">
+            <div class="col-md-2">
+                <small class="text-muted">요청자</small><br>
+                <strong>{{ work_request.requester.get_full_name }}</strong>
+            </div>
+            <div class="col-md-2">
+                <small class="text-muted">요청 부서</small><br>
+                <strong>{{ work_request.from_department }}</strong>
+            </div>
+            <div class="col-md-2">
+                <small class="text-muted">담당 부서</small><br>
+                <strong>{{ work_request.to_department }}</strong>
+            </div>
+            <div class="col-md-2">
+                <small class="text-muted">우선순위</small><br>
+                <strong>{{ work_request.get_priority_display }}</strong>
+            </div>
+            <div class="col-md-2">
+                <small class="text-muted">상태</small><br>
+                <strong>{{ work_request.get_status_display }}</strong>
+            </div>
+            <div class="col-md-2">
+                <small class="text-muted">마감일</small><br>
+                <strong>{{ work_request.due_date|date:"Y-m-d"|default:"-" }}</strong>
+            </div>
+        </div>
+
+        <div style="min-height: 100px; white-space: pre-wrap;">{{ work_request.content }}</div>
+    </div>
+</div>
+{% endblock %}
