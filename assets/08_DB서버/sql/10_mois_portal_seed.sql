@@ -5,17 +5,17 @@
 \c mois_portal;
 
 -- 사용자 (포털 관리자 + 일반 사용자)
-INSERT INTO users (username, email, password_hash, full_name, phone, is_admin, last_login) VALUES
-('admin',     'admin@mois.valdoria.gov',     crypt('@dminMOIS2026!', gen_salt('bf')),   '시스템관리자', '02-2100-0001', TRUE,  '2026-03-25 08:15:00+09'),
-('editor01',  'editor01@mois.valdoria.gov',  crypt('Edit0r#01', gen_salt('bf')),        '김편집',       '02-2100-0010', FALSE, '2026-03-24 17:30:00+09'),
-('editor02',  'editor02@mois.valdoria.gov',  crypt('Edit0r#02', gen_salt('bf')),        '이편집',       '02-2100-0011', FALSE, '2026-03-23 14:20:00+09'),
-('viewer01',  'viewer@mois.valdoria.gov',    crypt('View3r!!', gen_salt('bf')),         '박열람',       NULL,           FALSE, '2026-03-22 11:00:00+09'),
-('citizen01', 'hong@example.com',            crypt('Citizen!2026', gen_salt('bf')),     '홍길동',       '010-1234-5678', FALSE, '2026-03-20 09:30:00+09'),
-('citizen02', 'kim.ms@example.com',          crypt('Citizen!2026', gen_salt('bf')),     '김민수',       '010-2345-6789', FALSE, '2026-03-15 14:30:00+09')
+INSERT INTO users (username, email, password, role, last_login) VALUES
+('admin',     'admin@mois.valdoria.gov',     crypt('@dminMOIS2026!', gen_salt('bf')),   'superadmin', '2026-03-25 08:15:00'),
+('editor01',  'editor01@mois.valdoria.gov',  crypt('Edit0r#01', gen_salt('bf')),        'editor',     '2026-03-24 17:30:00'),
+('editor02',  'editor02@mois.valdoria.gov',  crypt('Edit0r#02', gen_salt('bf')),        'editor',     '2026-03-23 14:20:00'),
+('viewer01',  'viewer@mois.valdoria.gov',    crypt('View3r!!', gen_salt('bf')),         'viewer',     '2026-03-22 11:00:00'),
+('citizen01', 'hong@example.com',            crypt('Citizen!2026', gen_salt('bf')),     'viewer',     '2026-03-20 09:30:00'),
+('citizen02', 'kim.ms@example.com',          crypt('Citizen!2026', gen_salt('bf')),     'viewer',     '2026-03-15 14:30:00')
 ON CONFLICT (username) DO NOTHING;
 
 -- 공지사항
-INSERT INTO notices (title, content, category, author_name, is_pinned, view_count, created_at) VALUES
+INSERT INTO notices (title, content, category, author, is_public, view_count, created_at) VALUES
 ('2026년 상반기 정책 브리핑 일정 안내',
  '행정안전부에서는 2026년 상반기 주요 정책 브리핑 일정을 다음과 같이 안내합니다.
 
@@ -23,7 +23,7 @@ INSERT INTO notices (title, content, category, author_name, is_pinned, view_coun
 2분기: 4월 10일 - 지방자치 분권 강화 방안
 
 브리핑 참석을 희망하시는 분은 사전 등록 바랍니다.',
- '정책', '홍보담당관', TRUE, 1523, '2026-01-10 09:00:00+09'),
+ '정책', '홍보담당관', TRUE, 1523, '2026-01-10 09:00:00'),
 
 ('공공기관 정보보안 강화 지침 (제2026-03호)',
  '최근 사이버 위협 증가에 따라 공공기관 정보보안 강화 지침을 시행합니다.
@@ -35,7 +35,7 @@ INSERT INTO notices (title, content, category, author_name, is_pinned, view_coun
 4. 개인정보 처리시스템 접근 로그 1년 보관
 
 시행일: 2026년 3월 1일',
- '보안', '정보보안정책과', FALSE, 2847, '2026-02-15 10:00:00+09'),
+ '보안', '정보보안정책과', TRUE, 2847, '2026-02-15 10:00:00'),
 
 ('전자정부 서비스 개편 안내',
  '발도리아 전자정부 서비스가 2026년 4월부터 새롭게 개편됩니다.
@@ -44,7 +44,7 @@ INSERT INTO notices (title, content, category, author_name, is_pinned, view_coun
 - 통합 로그인 시스템 도입
 - 모바일 민원 서비스 확대
 - AI 기반 민원 자동 분류 시스템',
- '서비스', '전자정부과', FALSE, 956, '2026-03-01 09:00:00+09'),
+ '서비스', '전자정부과', TRUE, 956, '2026-03-01 09:00:00'),
 
 ('2026년 1분기 채용 공고 (행정직 5급)',
  '행정안전부 2026년 1분기 경력경쟁채용 시험을 공고합니다.
@@ -53,7 +53,7 @@ INSERT INTO notices (title, content, category, author_name, is_pinned, view_coun
 모집 인원: 3명
 접수 기간: 2026.03.15 ~ 2026.03.31
 시험 일시: 2026.04.20',
- '채용', '인사혁신과', FALSE, 4215, '2026-03-10 09:00:00+09'),
+ '채용', '인사혁신과', TRUE, 4215, '2026-03-10 09:00:00'),
 
 ('시스템 정기 점검 안내 (3월)',
  '행정안전부 홈페이지 시스템 정기 점검을 실시합니다.
@@ -61,13 +61,35 @@ INSERT INTO notices (title, content, category, author_name, is_pinned, view_coun
 점검 일시: 2026년 3월 22일(토) 02:00 ~ 06:00
 점검 내용: 서버 보안 업데이트 및 DB 최적화
 영향 범위: 홈페이지 및 민원 조회 서비스 일시 중단',
- '시스템', '정보화기획과', FALSE, 312, '2026-03-18 14:00:00+09');
+ '시스템', '정보화기획과', TRUE, 312, '2026-03-18 14:00:00'),
 
--- 문의
-INSERT INTO inquiries (user_id, subject, content, category, status, reply, replied_by, replied_at, created_at) VALUES
-(5, '개인정보 열람 요청', '본인의 개인정보 처리 현황 열람을 요청합니다.', '개인정보', '답변완료',
- '개인정보보호법 제35조에 따라 열람 결과를 이메일로 발송하였습니다.', '개인정보보호과', '2026-03-22 10:00:00+09', '2026-03-18 10:30:00+09'),
-(6, '도로 보수 요청', '마곡동 일대 도로 포장 상태가 불량합니다. 보수 요청 드립니다.', '생활불편', '처리중',
- NULL, NULL, NULL, '2026-03-15 14:30:00+09'),
-(NULL, '복지 서비스 문의', '신규 복지 서비스 신청 방법을 안내 부탁드립니다.', '일반문의', '접수',
- NULL, NULL, NULL, '2026-03-22 15:45:00+09');
+-- 비공개 공지 (관리자 API로만 조회 가능)
+('[내부] 보안 취약점 점검 결과 보고',
+ '2026년 1분기 보안 취약점 점검 결과:
+- 웹 애플리케이션: 고위험 2건, 중위험 5건
+- 네트워크: 고위험 1건, 중위험 3건
+- 서버: 중위험 4건
+
+조치 기한: 2026.04.30까지
+담당: 정보보안정책과',
+ '보안', '정보보안정책과', FALSE, 45, '2026-03-20 16:00:00'),
+
+('[내부] DB 서버 접속 정보 변경 안내',
+ 'DB 서버 접속 정보가 다음과 같이 변경되었습니다.
+호스트: 192.168.100.20
+포트: 5432
+사용자: portal_app
+비밀번호: P0rtal#DB@2026!
+
+변경일: 2026.03.01',
+ '시스템', '정보화기획과', FALSE, 12, '2026-03-01 11:00:00')
+ON CONFLICT DO NOTHING;
+
+-- 민원
+INSERT INTO inquiries (tracking_number, subject, description, status, department, submitter_name, submitter_email, submitted_at) VALUES
+('INQ-20260315-0042', '도로 보수 요청', '마곡동 일대 도로 포장 상태가 불량합니다. 보수 요청 드립니다.', '처리중', '도로관리과', '김민수', 'minsu.kim@example.com', '2026-03-15 14:30:00'),
+('INQ-20260310-0035', '가로등 고장 신고', '대화동 사거리 부근 가로등 2기 미점등 상태입니다.', '처리완료', '시설관리과', '이영희', 'younghee@example.com', '2026-03-10 09:15:00'),
+('INQ-20260320-0051', '소음 민원', '인근 공사장 야간 소음이 심합니다. 조치 바랍니다.', '접수', '환경정책과', '박지훈', 'jihun.park@example.com', '2026-03-20 22:00:00'),
+('INQ-20260318-0048', '개인정보 열람 요청', '본인의 개인정보 처리 현황 열람을 요청합니다.', '처리중', '개인정보보호과', '최서연', 'seoyeon.choi@example.com', '2026-03-18 10:30:00'),
+('INQ-20260322-0055', '복지 서비스 문의', '신규 복지 서비스 신청 방법을 안내 부탁드립니다.', '접수', '복지정책과', '정하은', 'haeun.jung@example.com', '2026-03-22 15:45:00')
+ON CONFLICT (tracking_number) DO NOTHING;
