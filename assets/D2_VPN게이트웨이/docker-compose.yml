@@ -1,0 +1,28 @@
+# ============================================================
+# D2 VPN 게이트웨이 — Docker Compose (로컬 테스트용)
+# 사이버 훈련 전용 — 실제 운영 환경 사용 금지
+# ============================================================
+version: "3.8"
+
+services:
+  vpn:
+    image: d2-vpn-gateway:latest
+    build: .
+    container_name: d2-vpn-gateway
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      - "1194:1194/udp"
+      - "443:443/tcp"
+    volumes:
+      - vpn-certs:/etc/openvpn/server/certs
+      - vpn-logs:/var/log/openvpn
+    sysctls:
+      - net.ipv4.ip_forward=1
+    restart: unless-stopped
+
+volumes:
+  vpn-certs:
+  vpn-logs:
