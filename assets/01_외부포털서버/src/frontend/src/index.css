@@ -1,0 +1,59 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont,
+      'Segoe UI', sans-serif;
+    @apply text-gray-800 bg-white;
+  }
+}
+
+@layer components {
+  /* 페이지 제목 공통 스타일 */
+  .page-title {
+    @apply text-2xl font-bold text-[#1a5276] border-b-2 border-[#1a5276] pb-3 mb-6;
+  }
+
+  /* 주요 버튼 */
+  .btn-primary {
+    @apply px-6 py-2 bg-[#1a5276] text-white rounded hover:bg-[#154360] transition-colors;
+  }
+
+  /* 보조 버튼 */
+  .btn-secondary {
+    @apply px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded hover:bg-gray-100 transition-colors;
+  }
+
+  /* 입력 필드 */
+  .input-field {
+    @apply border-2 border-gray-300 rounded px-4 py-2 focus:border-[#1a5276] focus:outline-none;
+  }
+
+  /* 카드 */
+  .card {
+    @apply bg-white border border-gray-200 rounded-lg p-6 shadow-sm;
+  }
+
+  /* 테이블 */
+  .table-header {
+    @apply bg-[#f8f9fa] font-medium text-sm;
+  }
+
+  .table-row {
+    @apply border-b hover:bg-gray-50 transition-colors;
+  }
+
+  .table-cell {
+    @apply px-4 py-3 text-sm;
+  }
+
+  /* 로딩 스피너 */
+  .loading-spinner {
+    @apply inline-block w-8 h-8 border-4 border-gray-200 border-t-[#1a5276] rounded-full animate-spin;
+  }
+}

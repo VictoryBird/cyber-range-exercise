@@ -1,0 +1,20 @@
+# robots.txt - 발도리아 행정안전부 포털
+User-agent: *
+Allow: /
+
+# 관리자 영역 접근 제한
+# [취약점] Disallow 지시문으로 민감한 경로를 노출하고 있음
+# 공격자가 robots.txt를 확인하면 관리 API 경로를 알 수 있음
+Disallow: /api/admin
+Disallow: /api/admin/users
+Disallow: /api/admin/settings
+Disallow: /api/internal
+Disallow: /api/internal/health
+Disallow: /api/internal/metrics
+Disallow: /api/internal/debug
+
+# 백업 디렉토리
+Disallow: /backup/
+Disallow: /api/db-backup/
+
+Sitemap: https://www.mois.valdoria.gov/sitemap.xml

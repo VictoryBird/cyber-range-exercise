@@ -1,1 +1,8 @@
 deploy/
+.claude/
+node_modules/
+__pycache__/
+*.pyc
+.env
+venv/
+*.zip
