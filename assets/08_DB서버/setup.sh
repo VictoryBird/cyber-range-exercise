@@ -53,16 +53,60 @@ PG_CONF_DIR="/etc/postgresql/${PG_VER}/main"
 cp ${PG_CONF_DIR}/postgresql.conf ${PG_CONF_DIR}/postgresql.conf.bak
 cp ${PG_CONF_DIR}/pg_hba.conf ${PG_CONF_DIR}/pg_hba.conf.bak
 
-# 취약한 설정 배포
-[ -f "${SCRIPT_DIR}/conf/postgresql.conf" ] || { echo "[ERROR] 파일 없음: conf/postgresql.conf"; exit 1; }
+# pg_hba.conf 덮어쓰기 (접근 제어)
 [ -f "${SCRIPT_DIR}/conf/pg_hba.conf" ] || { echo "[ERROR] 파일 없음: conf/pg_hba.conf"; exit 1; }
-[ -f "${SCRIPT_DIR}/conf/pgaudit.conf" ] || { echo "[ERROR] 파일 없음: conf/pgaudit.conf"; exit 1; }
-cp ${SCRIPT_DIR}/conf/postgresql.conf ${PG_CONF_DIR}/postgresql.conf
 cp ${SCRIPT_DIR}/conf/pg_hba.conf ${PG_CONF_DIR}/pg_hba.conf
+
+# postgresql.conf — 원본 유지하면서 취약 설정만 오버라이드 (data_directory 등 보존)
+# conf.d 디렉토리가 include되도록 설정
 mkdir -p ${PG_CONF_DIR}/conf.d
+grep -q "include_dir = 'conf.d'" ${PG_CONF_DIR}/postgresql.conf || \
+    echo "include_dir = 'conf.d'" >> ${PG_CONF_DIR}/postgresql.conf
+
+# 취약 설정을 conf.d에 배포 (원본 postgresql.conf 위에 오버라이드)
+cat > ${PG_CONF_DIR}/conf.d/00_custom.conf << 'PGCONF'
+# 연결 설정
+listen_addresses = '*'
+port = 5432
+max_connections = 100
+
+# 메모리
+shared_buffers = 256MB
+effective_cache_size = 768MB
+work_mem = 4MB
+maintenance_work_mem = 64MB
+
+# WAL
+wal_level = replica
+max_wal_size = 1GB
+min_wal_size = 80MB
+
+# [VULN-DB-03] 로깅 설정 — 의도적으로 최소 로깅
+# 올바른 설정: log_statement = 'all', log_connections = on
+logging_collector = on
+log_directory = '/var/log/postgresql'
+log_rotation_age = 1d
+log_rotation_size = 100MB
+log_line_prefix = '%t [%p]: '
+log_statement = 'none'
+log_min_duration_statement = -1
+log_connections = off
+log_disconnections = off
+
+# shared_preload_libraries — pgaudit 미포함 (블루팀이 수동 활성화)
+shared_preload_libraries = 'pg_stat_statements'
+pg_stat_statements.max = 1000
+pg_stat_statements.track = all
+
+# 로케일/시간
+timezone = 'Asia/Seoul'
+PGCONF
+
+# pgaudit 설정 (비활성 상태 — 블루팀이 수동 활성화)
+[ -f "${SCRIPT_DIR}/conf/pgaudit.conf" ] || { echo "[ERROR] 파일 없음: conf/pgaudit.conf"; exit 1; }
 cp ${SCRIPT_DIR}/conf/pgaudit.conf ${PG_CONF_DIR}/conf.d/pgaudit.conf
 
-chown postgres:postgres ${PG_CONF_DIR}/postgresql.conf ${PG_CONF_DIR}/pg_hba.conf
+chown postgres:postgres ${PG_CONF_DIR}/pg_hba.conf
 chown -R postgres:postgres ${PG_CONF_DIR}/conf.d
 
 # ===== [5] PostgreSQL 재시작 및 DB/역할 생성 =====
