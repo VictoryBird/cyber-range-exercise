@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  patchserver:
+    image: mil-patchserver:latest
+    build: .
+    ports:
+      - "80:80"
+    volumes:
+      - patchserver-updates:/var/www/update-server/updates
+      - patchserver-logs:/var/www/update-server/logs
+
+volumes:
+  patchserver-updates:
+  patchserver-logs:

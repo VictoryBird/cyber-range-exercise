@@ -1,0 +1,10 @@
+# passwd-file 인증 (AD 미가용 시 폴백)
+passdb {
+  driver = passwd-file
+  args = scheme=PLAIN username_format=%u /etc/dovecot/users
+}
+
+userdb {
+  driver = passwd-file
+  args = username_format=%u /etc/dovecot/users
+}

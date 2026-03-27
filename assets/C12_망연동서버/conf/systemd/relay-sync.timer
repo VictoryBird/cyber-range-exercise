@@ -1,0 +1,13 @@
+# /etc/systemd/system/relay-sync.timer
+# C12 망 연동 서버 — 30초 주기 동기화 타이머
+
+[Unit]
+Description=C4I Relay Sync Timer (30초 주기)
+
+[Timer]
+OnBootSec=10s
+OnUnitActiveSec=30s
+AccuracySec=5s
+
+[Install]
+WantedBy=timers.target

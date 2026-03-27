@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  docstorage:
+    image: mil-docstorage:latest
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://docstorage:DocStore2026!@db:5432/mil_docstorage
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8000
+      - JWT_SECRET=mil_docstorage_jwt_secret_key_2026
+      - UPLOAD_DIR=/opt/docstorage/files
+      - DEBUG=true
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - docstorage-files:/opt/docstorage/files
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: mil_docstorage
+      POSTGRES_USER: docstorage
+      POSTGRES_PASSWORD: DocStore2026!
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - docstorage-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U docstorage -d mil_docstorage"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  docstorage-files:
+  docstorage-pgdata:

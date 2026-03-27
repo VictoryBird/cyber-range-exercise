@@ -1,0 +1,48 @@
+{
+    "version": "2026.03.25",
+    "last_updated": "2026-03-25T10:00:00Z",
+    "updates": [
+        {
+            "id": "KB2024001",
+            "name": "SecurityPatch_KB2024001",
+            "filename": "SecurityPatch_KB2024001.exe",
+            "version": "1.0.3",
+            "size": 2458624,
+            "sha256": "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456",
+            "description": "2026년 3월 보안 패치 (긴급)",
+            "severity": "critical",
+            "target_os": "Windows 10/11",
+            "auto_install": true,
+            "requires_reboot": false,
+            "release_date": "2026-03-20"
+        },
+        {
+            "id": "KB2024002",
+            "name": "OfficeUpdate_KB2024002",
+            "filename": "OfficeUpdate_KB2024002.msi",
+            "version": "2.1.0",
+            "size": 15728640,
+            "sha256": "b2c3d4e5f6a789012345678901234567890abcdef1234567890abcdef1234567",
+            "description": "Office 보안 업데이트",
+            "severity": "high",
+            "target_os": "Windows 10/11",
+            "auto_install": true,
+            "requires_reboot": true,
+            "release_date": "2026-03-15"
+        },
+        {
+            "id": "KB2024003",
+            "name": "NetworkDriver_KB2024003",
+            "filename": "NetworkDriver_KB2024003.exe",
+            "version": "3.5.1",
+            "size": 5242880,
+            "sha256": "c3d4e5f6a7b89012345678901234567890abcdef1234567890abcdef12345678",
+            "description": "네트워크 드라이버 업데이트",
+            "severity": "medium",
+            "target_os": "Windows 10/11",
+            "auto_install": false,
+            "requires_reboot": true,
+            "release_date": "2026-03-10"
+        }
+    ]
+}

@@ -1,0 +1,24 @@
+# /etc/systemd/system/relay-sync.service
+# C12 망 연동 서버 — 동기화 서비스
+
+[Unit]
+Description=C4I Relay Sync Service (INT -> C4I 이벤트 동기화)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+
+# [취약 설정] VULN-C12-02: 스크립트가 root 권한으로 실행됨
+# [올바른 구현] 전용 서비스 계정(예: relay-svc)을 생성하고 최소 권한으로 실행해야 함
+#   User=relay-svc
+#   Group=relay-svc
+User=root
+Group=root
+
+WorkingDirectory=/opt/relay/scripts
+ExecStart=/usr/bin/python3 /opt/relay/scripts/sync_events.py
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

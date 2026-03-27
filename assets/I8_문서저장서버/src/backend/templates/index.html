@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>국방부 문서 저장 시스템</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container">
+            <span class="navbar-brand">국방부 문서 저장 시스템</span>
+            <div id="auth-area">
+                <button class="btn btn-outline-light btn-sm" onclick="showLoginModal()">로그인</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- 카테고리 필터 -->
+        <div class="row mb-3">
+            <div class="col">
+                <div class="btn-group" role="group">
+                    <button class="btn btn-outline-primary active" onclick="loadFiles()">전체</button>
+                    <button class="btn btn-outline-primary" onclick="loadFiles('작전계획')">작전계획</button>
+                    <button class="btn btn-outline-primary" onclick="loadFiles('군수보급')">군수보급</button>
+                    <button class="btn btn-outline-primary" onclick="loadFiles('인사명령')">인사명령</button>
+                    <button class="btn btn-outline-primary" onclick="loadFiles('통신보안')">통신보안</button>
+                    <button class="btn btn-outline-primary" onclick="loadFiles('일반행정')">일반행정</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 파일 목록 테이블 -->
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>파일명</th>
+                    <th>분류</th>
+                    <th>보안등급</th>
+                    <th>크기</th>
+                    <th>업로드</th>
+                    <th>작업</th>
+                </tr>
+            </thead>
+            <tbody id="file-list">
+                <tr><td colspan="7" class="text-center">로딩 중...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 로그인 모달 -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">로그인</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label class="form-label">사용자명</label>
+                            <input type="text" class="form-control" id="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">비밀번호</label>
+                            <input type="password" class="form-control" id="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">로그인</button>
+                    </form>
+                    <div id="login-error" class="text-danger mt-2" style="display:none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let token = null;
+
+        // 페이지 로드 시 파일 목록 조회
+        document.addEventListener('DOMContentLoaded', () => loadFiles());
+
+        async function loadFiles(category = null) {
+            let url = '/api/files/list';
+            if (category) url += `?category=${encodeURIComponent(category)}`;
+
+            const resp = await fetch(url);
+            const data = await resp.json();
+            const tbody = document.getElementById('file-list');
+
+            if (data.files.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center">문서가 없습니다</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.files.map((f, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${f.filename}</td>
+                    <td><span class="badge bg-info">${f.category}</span></td>
+                    <td><span class="badge ${f.classification === '비밀' ? 'bg-danger' : 'bg-secondary'}">${f.classification}</span></td>
+                    <td>${formatSize(f.size)}</td>
+                    <td>${f.uploaded_by} (${f.uploaded_at.substring(0, 10)})</td>
+                    <td>
+                        <a href="/api/download?file=${encodeURIComponent(f.filename)}"
+                           class="btn btn-sm btn-outline-primary">다운로드</a>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        function showLoginModal() {
+            new bootstrap.Modal(document.getElementById('loginModal')).show();
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const resp = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username, password})
+            });
+
+            if (resp.ok) {
+                const data = await resp.json();
+                token = data.access_token;
+                document.getElementById('auth-area').innerHTML =
+                    `<span class="text-light me-2">${data.user.name}</span>
+                     <button class="btn btn-outline-light btn-sm" onclick="logout()">로그아웃</button>`;
+                bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+                document.getElementById('login-error').textContent = '로그인 실패';
+            }
+        });
+
+        function logout() {
+            token = null;
+            document.getElementById('auth-area').innerHTML =
+                '<button class="btn btn-outline-light btn-sm" onclick="showLoginModal()">로그인</button>';
+        }
+    </script>
+</body>
+</html>
