@@ -1,0 +1,94 @@
+# =============================================================================
+# Docker Compose — 민원 처리 서버 (자산 06) 로컬 테스트 환경
+# =============================================================================
+# 구성: Redis (무인증) + Worker (LibreOffice + Pillow) + MinIO
+# [취약점] VULN-06-03: Redis 무인증 (bind 0.0.0.0, requirepass 없음)
+# [취약점] VULN-06-01: LibreOffice 구버전 + 매크로 보안 비활성화
+# [취약점] VULN-06-02: Pillow 8.4.0 (CVE-2022-22815/16/17)
+
+services:
+  # ---------------------------------------------------------------------------
+  # Redis — 작업 큐 브로커 + 결과 백엔드
+  # ---------------------------------------------------------------------------
+  redis:
+    image: complaint-redis:latest
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM redis:7.0-alpine
+        COPY conf/redis/redis.conf /usr/local/etc/redis/redis.conf
+        CMD ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    ports:
+      - "6379:6379"
+    # [취약 설정] VULN-06-03: Redis 무인증, 보호 모드 비활성화
+    volumes:
+      - redis-data:/var/lib/redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+
+  # ---------------------------------------------------------------------------
+  # MinIO — 파일 스토리지 (DMZ 민원 접수 서버 역할 대체)
+  # ---------------------------------------------------------------------------
+  minio:
+    image: complaint-minio:latest
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM minio/minio:latest
+        CMD ["server", "/data", "--console-address", ":9001"]
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minio_complaint_svc
+      MINIO_ROOT_PASSWORD: minio_S3cr3tK3y_2026!
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      retries: 10
+
+  # ---------------------------------------------------------------------------
+  # Worker — Celery 워커 (LibreOffice + Pillow)
+  # ---------------------------------------------------------------------------
+  worker:
+    image: complaint-worker:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      # Redis (Docker 서비스명 사용)
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      # MinIO (Docker 서비스명 사용)
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: minio_complaint_svc
+      MINIO_SECRET_KEY: minio_S3cr3tK3y_2026!
+      MINIO_BUCKET: complaints
+      MINIO_USE_SSL: "false"
+      # DB (Docker 테스트에서는 미사용, 스텁 처리)
+      DB_HOST: "localhost"
+      DB_PORT: "5432"
+      DB_NAME: complaints
+      DB_USER: app_service
+      DB_PASSWORD: "Sup3rS3cr3t!"
+      # Worker
+      WORKER_CONCURRENCY: "3"
+      PROCESSING_TEMP_DIR: /tmp/processing
+      LOG_LEVEL: INFO
+    volumes:
+      - worker-tmp:/tmp/processing
+
+volumes:
+  redis-data:
+  minio-data:
+  worker-tmp:

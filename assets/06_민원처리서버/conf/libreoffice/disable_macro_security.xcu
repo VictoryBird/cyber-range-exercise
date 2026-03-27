@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  =============================================================================
+  LibreOffice 매크로 보안 설정 — 민원 처리 서버 (자산 06)
+  =============================================================================
+  [취약 설정] VULN-06-01: 매크로 보안 비활성화
+  - MacroSecurityLevel=0 (최저): 모든 매크로 무조건 실행
+  - /tmp를 신뢰 경로로 추가: 처리 디렉토리의 문서 매크로 자동 실행
+  올바른 구현:
+  - MacroSecurityLevel=3 (Very High): 신뢰할 수 있는 매크로만 실행
+  - 신뢰 경로에 /tmp 미포함
+  - 또는 LibreOffice 변환 시 -nolockcheck -norestore -infilter 옵션으로 매크로 차단
+-->
+<oor:items xmlns:oor="http://openoffice.org/2001/registry"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <!-- [취약 설정] VULN-06-01: 매크로 보안 레벨을 0 (최저)으로 설정 -->
+  <!-- 올바른 값: 3 (Very High) -->
+  <item oor:path="/org.openoffice.Office.Common/Security/Scripting">
+    <prop oor:name="MacroSecurityLevel" oor:op="fuse">
+      <value>0</value>
+    </prop>
+  </item>
+
+  <!-- [취약 설정] VULN-06-01: /tmp를 신뢰할 수 있는 매크로 경로로 추가 -->
+  <!-- 올바른 구현: 신뢰 경로를 지정하지 않거나, 특정 안전한 디렉토리만 지정 -->
+  <item oor:path="/org.openoffice.Office.Common/Security/Scripting">
+    <prop oor:name="SecureURL" oor:op="fuse">
+      <value>/tmp</value>
+    </prop>
+  </item>
+
+  <!-- [취약 설정] VULN-06-01: 매크로 실행 경고 비활성화 -->
+  <item oor:path="/org.openoffice.Office.Common/Security/Scripting">
+    <prop oor:name="WarnSaveOrSendDoc" oor:op="fuse">
+      <value>false</value>
+    </prop>
+  </item>
+
+  <!-- [취약 설정] VULN-06-01: 매크로 실행 확인 대화상자 비활성화 -->
+  <item oor:path="/org.openoffice.Office.Common/Security/Scripting">
+    <prop oor:name="OfficeBasic" oor:op="fuse">
+      <value>2</value>
+    </prop>
+  </item>
+
+</oor:items>
