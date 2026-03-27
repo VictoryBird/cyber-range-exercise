@@ -114,9 +114,14 @@ echo "[4/7] PostgreSQL 재시작 및 데이터베이스 초기화..."
 systemctl restart postgresql
 systemctl enable postgresql
 
+# SQL 파일을 postgres 유저가 읽을 수 있는 임시 디렉토리로 복사
+SQL_TMP=$(mktemp -d)
+cp ${SCRIPT_DIR}/sql/*.sql ${SQL_TMP}/
+chown -R postgres:postgres ${SQL_TMP}
+
 # 역할 생성
-[ -f "${SCRIPT_DIR}/sql/00_roles.sql" ] || { echo "[ERROR] SQL 파일 없음: sql/00_roles.sql"; exit 1; }
-sudo -u postgres psql -f ${SCRIPT_DIR}/sql/00_roles.sql
+[ -f "${SQL_TMP}/00_roles.sql" ] || { echo "[ERROR] SQL 파일 없음: sql/00_roles.sql"; exit 1; }
+sudo -u postgres psql -f ${SQL_TMP}/00_roles.sql
 
 # 데이터베이스 생성
 sudo -u postgres psql -c "CREATE DATABASE mois_portal OWNER postgres ENCODING 'UTF8' TEMPLATE template0;" 2>/dev/null || true
@@ -125,21 +130,18 @@ sudo -u postgres psql -c "CREATE DATABASE complaint_db OWNER postgres ENCODING '
 
 # DDL 실행
 echo "[5/7] 스키마 생성 중..."
-[ -f "${SCRIPT_DIR}/sql/01_mois_portal_ddl.sql" ] || { echo "[ERROR] SQL 파일 없음: sql/01_mois_portal_ddl.sql"; exit 1; }
-[ -f "${SCRIPT_DIR}/sql/02_agency_db_ddl.sql" ] || { echo "[ERROR] SQL 파일 없음: sql/02_agency_db_ddl.sql"; exit 1; }
-[ -f "${SCRIPT_DIR}/sql/03_complaint_db_ddl.sql" ] || { echo "[ERROR] SQL 파일 없음: sql/03_complaint_db_ddl.sql"; exit 1; }
-sudo -u postgres psql -f ${SCRIPT_DIR}/sql/01_mois_portal_ddl.sql
-sudo -u postgres psql -f ${SCRIPT_DIR}/sql/02_agency_db_ddl.sql
-sudo -u postgres psql -f ${SCRIPT_DIR}/sql/03_complaint_db_ddl.sql
+sudo -u postgres psql -f ${SQL_TMP}/01_mois_portal_ddl.sql
+sudo -u postgres psql -f ${SQL_TMP}/02_agency_db_ddl.sql
+sudo -u postgres psql -f ${SQL_TMP}/03_complaint_db_ddl.sql
 
 # 시드 데이터 삽입
 echo "[6/7] 시드 데이터 삽입 중..."
-[ -f "${SCRIPT_DIR}/sql/10_mois_portal_seed.sql" ] || { echo "[ERROR] SQL 파일 없음: sql/10_mois_portal_seed.sql"; exit 1; }
-[ -f "${SCRIPT_DIR}/sql/11_agency_db_seed.sql" ] || { echo "[ERROR] SQL 파일 없음: sql/11_agency_db_seed.sql"; exit 1; }
-[ -f "${SCRIPT_DIR}/sql/12_complaint_db_seed.sql" ] || { echo "[ERROR] SQL 파일 없음: sql/12_complaint_db_seed.sql"; exit 1; }
-sudo -u postgres psql -f ${SCRIPT_DIR}/sql/10_mois_portal_seed.sql
-sudo -u postgres psql -f ${SCRIPT_DIR}/sql/11_agency_db_seed.sql
-sudo -u postgres psql -f ${SCRIPT_DIR}/sql/12_complaint_db_seed.sql
+sudo -u postgres psql -f ${SQL_TMP}/10_mois_portal_seed.sql
+sudo -u postgres psql -f ${SQL_TMP}/11_agency_db_seed.sql
+sudo -u postgres psql -f ${SQL_TMP}/12_complaint_db_seed.sql
+
+# 임시 디렉토리 정리
+rm -rf ${SQL_TMP}
 
 # ===== [6] 관리 스크립트 배포 =====
 mkdir -p /opt/db-scripts /var/backups/postgresql/{daily,weekly}
