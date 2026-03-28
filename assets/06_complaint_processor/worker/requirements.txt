@@ -1,0 +1,17 @@
+# 민원 처리 워커 의존성
+# Asset 06: Complaint Processing Server (192.168.92.206)
+#
+# 주의: Pillow 8.4.0은 훈련 시나리오의 의도적 취약 버전이다.
+#   CVE-2022-22815: PIL.ImagePath.Path 초기화 취약점
+#   CVE-2022-22816: Buffer over-read (GIF 처리)
+#   CVE-2022-22817: ImagingTransformMap의 eval() 호출로 임의 코드 실행 가능
+#   안전한 버전: Pillow>=9.3.0 (CVE 패치 포함)
+
+celery==5.3.6
+redis==5.0.1
+boto3==1.34.50
+psycopg2-binary==2.9.9
+python-magic==0.4.27
+Pillow==8.4.0
+python-dotenv==1.0.1
+structlog==24.1.0

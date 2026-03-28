@@ -1,0 +1,17 @@
+[Unit]
+Description=Complaint Processing Worker (Celery)
+After=network.target redis-server.service
+Wants=redis-server.service
+
+[Service]
+Type=simple
+User=complaint-worker
+Group=complaint-worker
+WorkingDirectory=/opt/complaint-worker
+EnvironmentFile=/opt/complaint-worker/.env
+ExecStart=/opt/complaint-worker/venv/bin/celery -A tasks worker --loglevel=info --concurrency=3 -Q file_convert
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

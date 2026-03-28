@@ -1,0 +1,17 @@
+[Unit]
+Description=MinWon Complaint API (FastAPI)
+After=network.target minio.service
+Wants=minio.service
+
+[Service]
+Type=simple
+User=minwon
+Group=minwon
+WorkingDirectory=/opt/minwon/backend
+EnvironmentFile=/opt/minwon/.env
+ExecStart=/opt/minwon/backend/venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000 --log-level info --access-log
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
