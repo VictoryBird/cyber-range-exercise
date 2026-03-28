@@ -7,11 +7,13 @@ import Pagination from "../../components/Pagination";
 
 const CATEGORIES = [
   { key: null, label: "All" },
-  { key: "policy", label: "Policy" },
-  { key: "security", label: "Security" },
-  { key: "service", label: "Service" },
-  { key: "system", label: "System" },
-  { key: "recruitment", label: "Recruitment" },
+  { key: "Policy", label: "Policy" },
+  { key: "Security", label: "Security" },
+  { key: "Service", label: "Service" },
+  { key: "System", label: "System" },
+  { key: "Recruitment", label: "Recruitment" },
+  { key: "Training", label: "Training" },
+  { key: "Event", label: "Event" },
 ];
 
 const CATEGORY_BADGE = {

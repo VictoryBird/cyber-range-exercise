@@ -25,7 +25,7 @@ async def list_notices(
     param_idx = 1
 
     if category:
-        where_clause += f" AND category = ${param_idx}"
+        where_clause += f" AND LOWER(category) = LOWER(${param_idx})"
         params.append(category)
         param_idx += 1
 
