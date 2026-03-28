@@ -138,7 +138,7 @@ print('All critical dependencies OK.')
 step 7 "npm install + Next.js production build"
 # =============================================================
 cd "${DEPLOY_DIR}/frontend"
-npm install
+npm install --legacy-peer-deps
 npm run build
 cd "${SCRIPT_DIR}"
 echo "Next.js production build complete."
