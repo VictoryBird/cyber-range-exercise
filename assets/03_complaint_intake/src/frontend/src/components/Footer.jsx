@@ -11,11 +11,11 @@ export default function Footer() {
               Ministry of the Interior and Safety
             </h3>
             <p className="text-xs leading-relaxed text-gray-400">
-              Government Complex Valdoria, 209 Sejong-daero,<br />
-              Jongno-gu, Valdoria Capital District 03171
+              Government Complex Valdoria, 14 Republic Avenue,<br />
+              Central District, Valdoria Capital 10100
             </p>
             <p className="text-xs text-gray-400 mt-2">
-              Registration No: 000-83-000123
+              Registration No: VD-GOV-2024-0031
             </p>
           </div>
 
@@ -41,7 +41,7 @@ export default function Footer() {
             </h3>
             <ul className="text-xs space-y-1 text-gray-400">
               <li>Call Center: 110 (domestic)</li>
-              <li>International: +82-2-2100-3399</li>
+              <li>International: +42-2-2100-3399</li>
               <li>Email: mois@valdoria.gov.vl</li>
             </ul>
             <div className="flex gap-4 mt-3 text-xs">

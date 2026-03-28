@@ -45,10 +45,10 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/inquiry"
+                  href="/services"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  Inquiry Status
+                  Civil Services
                 </Link>
               </li>
               <li>

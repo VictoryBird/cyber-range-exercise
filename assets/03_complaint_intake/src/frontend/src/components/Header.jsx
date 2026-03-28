@@ -14,7 +14,7 @@ export default function Header() {
       <div className="bg-gov-navy-dark border-b border-gov-navy-light">
         <div className="max-w-6xl mx-auto px-4 py-1.5 flex items-center justify-between text-xs text-gray-300">
           <span>Ministry of the Interior and Safety — Valdoria</span>
-          <span>Official Government Portal</span>
+          <a href="https://www.mois.valdoria.gov" className="hover:text-gov-gold transition-colors">Official Government Portal</a>
         </div>
       </div>
 

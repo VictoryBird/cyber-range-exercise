@@ -103,8 +103,8 @@ export default function HomePage() {
               <Link href="/notices" className="govt-btn-primary !bg-valdoria-gold !text-valdoria-navy-dark hover:!bg-valdoria-gold-light">
                 View Notices
               </Link>
-              <Link href="/inquiry" className="govt-btn-primary !bg-white !text-valdoria-navy-dark hover:!bg-gray-200">
-                Track Inquiry
+              <Link href="/services" className="govt-btn-primary !bg-white !text-valdoria-navy-dark hover:!bg-gray-200">
+                Civil Services
               </Link>
             </div>
           </div>
@@ -146,17 +146,17 @@ export default function HomePage() {
                 desc: "Find information",
               },
               {
-                href: "/inquiry",
+                href: "/services",
                 icon: (
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={1.5}
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                   />
                 ),
-                label: "Inquiry Status",
-                desc: "Track your request",
+                label: "Civil Services",
+                desc: "Government services",
               },
               {
                 href: "/egovernment",

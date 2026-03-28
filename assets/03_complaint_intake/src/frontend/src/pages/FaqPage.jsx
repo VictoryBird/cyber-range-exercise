@@ -127,7 +127,7 @@ export default function FaqPage() {
           <Link to="/submit" className="btn-gold text-sm px-5 py-2">
             Submit a Complaint
           </Link>
-          <Link to="/status" className="btn-secondary text-sm px-5 py-2 border-gray-400 text-white hover:bg-gov-navy-light">
+          <Link to="/status" className="btn-secondary text-sm px-5 py-2 border-gov-gold text-gov-gold hover:bg-gov-navy-light">
             Track Status
           </Link>
         </div>

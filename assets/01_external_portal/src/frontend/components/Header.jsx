@@ -8,7 +8,7 @@ import SearchBar from "./SearchBar";
 const NAV_ITEMS = [
   { href: "/", label: "Home" },
   { href: "/notices", label: "Notices" },
-  { href: "/inquiry", label: "Inquiry Status" },
+  { href: "/services", label: "Civil Services" },
   { href: "/search", label: "Search" },
 ];
 
