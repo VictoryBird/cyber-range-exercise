@@ -7,9 +7,13 @@ import SearchBar from "./SearchBar";
 
 const NAV_ITEMS = [
   { href: "/", label: "Home" },
+  { href: "/about", label: "About" },
+  { href: "/policy", label: "Policy" },
   { href: "/notices", label: "Notices" },
-  { href: "/services", label: "Civil Services" },
-  { href: "/search", label: "Search" },
+  { href: "/news", label: "News" },
+  { href: "/services", label: "Services" },
+  { href: "/safety", label: "Safety" },
+  { href: "/participate", label: "Participate" },
 ];
 
 export default function Header() {
@@ -93,7 +97,7 @@ export default function Header() {
       {/* Navigation bar */}
       <nav className="bg-valdoria-navy-light border-b-2 border-valdoria-gold/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="hidden lg:flex items-center h-11 gap-1">
+          <div className="hidden lg:flex items-center h-11 gap-0.5">
             {NAV_ITEMS.map((item) => {
               const isActive =
                 item.href === "/"
@@ -103,7 +107,7 @@ export default function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors duration-150 ${
+                  className={`px-3 py-2 text-xs font-medium tracking-wide rounded-t-md transition-colors duration-150 ${
                     isActive
                       ? "bg-white text-valdoria-navy"
                       : "text-white/90 hover:bg-white/10 hover:text-white"

@@ -40,7 +40,7 @@ export default function Footer() {
                   href="/notices"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  Notice Board
+                  Notices
                 </Link>
               </li>
               <li>
@@ -53,18 +53,34 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/search"
+                  href="/policy"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  Search
+                  Policy & Legislation
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/egovernment"
+                  href="/safety"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  E-Government Services
+                  Safety & Emergency
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/data"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  Open Data
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/participate"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  Citizen Participation
                 </Link>
               </li>
             </ul>
