@@ -161,9 +161,24 @@ echo "[8/15] Redis 설정 배포..."
 mkdir -p /var/log/redis
 chown redis:redis /var/log/redis
 
-cp "${SCRIPT_DIR}/conf/redis/redis.conf" /etc/redis/redis.conf
-chown redis:redis /etc/redis/redis.conf
-chmod 640 /etc/redis/redis.conf
+# 기존 redis.conf를 유지하고, 취약 설정만 오버라이드
+# (통째 덮어쓰면 supervised systemd 등 필수 설정이 사라져 서비스 시작 실패)
+REDIS_CONF="/etc/redis/redis.conf"
+
+# bind 변경: 0.0.0.0으로 모든 인터페이스에서 접근 허용
+sed -i 's/^bind .*/bind 0.0.0.0/' "${REDIS_CONF}"
+
+# [취약 설정] protected-mode 비활성화
+# 올바른 설정: protected-mode yes
+sed -i 's/^protected-mode .*/protected-mode no/' "${REDIS_CONF}"
+grep -q "^protected-mode" "${REDIS_CONF}" || echo "protected-mode no" >> "${REDIS_CONF}"
+
+# [취약 설정] requirepass 주석 처리 (인증 없음)
+# 올바른 설정: requirepass StrongRedisPassword123!
+sed -i 's/^requirepass /#requirepass /' "${REDIS_CONF}"
+
+# 로그 경로 확인
+sed -i 's|^logfile .*|logfile /var/log/redis/redis-server.log|' "${REDIS_CONF}"
 
 systemctl enable redis-server
 systemctl restart redis-server
