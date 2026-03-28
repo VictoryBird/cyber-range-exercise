@@ -5,6 +5,22 @@ const nextConfig = {
   // via CVE-2025-55182 (React2Shell).
   // 올바른 구현: upgrade to next@15.1.0+ which patches this vulnerability
   reactStrictMode: true,
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "http://127.0.0.1:8000/api/:path*",
+      },
+      {
+        source: "/docs",
+        destination: "http://127.0.0.1:8000/docs",
+      },
+      {
+        source: "/openapi.json",
+        destination: "http://127.0.0.1:8000/openapi.json",
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

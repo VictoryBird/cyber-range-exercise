@@ -5,40 +5,17 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import SearchBar from "./SearchBar";
 
-const TRANSLATIONS = {
-  en: {
-    banner: "An official website of the Republic of Valdoria",
-    republic: "Republic of Valdoria",
-    ministry: "Ministry of Interior and Safety",
-    searchPlaceholder: "Search portal...",
-    nav: [
-      { href: "/", label: "Home" },
-      { href: "/notices", label: "Notices" },
-      { href: "/inquiry", label: "Inquiry Status" },
-      { href: "/search", label: "Search" },
-    ],
-  },
-  ko: {
-    banner: "발도리아 공화국 공식 웹사이트",
-    republic: "발도리아 공화국",
-    ministry: "행정안전부",
-    searchPlaceholder: "포털 검색...",
-    nav: [
-      { href: "/", label: "홈" },
-      { href: "/notices", label: "공지사항" },
-      { href: "/inquiry", label: "민원조회" },
-      { href: "/search", label: "검색" },
-    ],
-  },
-};
+const NAV_ITEMS = [
+  { href: "/", label: "Home" },
+  { href: "/notices", label: "Notices" },
+  { href: "/inquiry", label: "Inquiry Status" },
+  { href: "/search", label: "Search" },
+];
 
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [lang, setLang] = useState("en");
-
-  const t = TRANSLATIONS[lang];
 
   const handleSearch = (query) => {
     if (query.trim()) {
@@ -53,16 +30,9 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-8 text-xs tracking-wide">
             <span className="opacity-80">
-              {t.banner}
+              An official website of the Republic of Valdoria
             </span>
             <div className="hidden sm:flex items-center gap-4 opacity-80">
-              <button
-                onClick={() => setLang(lang === "en" ? "ko" : "en")}
-                className="hover:text-valdoria-gold transition-colors cursor-pointer"
-              >
-                {lang === "en" ? "한국어" : "English"}
-              </button>
-              <span className="text-valdoria-gold/60">|</span>
               <Link href="/accessibility" className="hover:text-valdoria-gold transition-colors">
                 Accessibility
               </Link>
@@ -85,10 +55,10 @@ export default function Header() {
               </div>
               <div className="text-white">
                 <div className="text-sm font-medium tracking-widest uppercase text-valdoria-gold-light opacity-90">
-                  {t.republic}
+                  Republic of Valdoria
                 </div>
                 <div className="text-lg font-semibold tracking-wide group-hover:text-valdoria-gold-light transition-colors">
-                  {t.ministry}
+                  Ministry of Interior and Safety
                 </div>
               </div>
             </Link>
@@ -97,7 +67,7 @@ export default function Header() {
             <div className="hidden lg:block w-72">
               <SearchBar
                 onSearch={handleSearch}
-                placeholder={t.searchPlaceholder}
+                placeholder="Search portal..."
                 variant="header"
               />
             </div>
@@ -124,7 +94,7 @@ export default function Header() {
       <nav className="bg-valdoria-navy-light border-b-2 border-valdoria-gold/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="hidden lg:flex items-center h-11 gap-1">
-            {t.nav.map((item) => {
+            {NAV_ITEMS.map((item) => {
               const isActive =
                 item.href === "/"
                   ? pathname === "/"
@@ -151,7 +121,7 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="lg:hidden bg-valdoria-navy border-t border-valdoria-navy-light">
           <div className="px-4 py-3 space-y-1">
-            {t.nav.map((item) => {
+            {NAV_ITEMS.map((item) => {
               const isActive =
                 item.href === "/"
                   ? pathname === "/"
@@ -177,7 +147,7 @@ export default function Header() {
                   handleSearch(q);
                   setMobileMenuOpen(false);
                 }}
-                placeholder={t.searchPlaceholder}
+                placeholder="Search portal..."
                 variant="header"
               />
             </div>

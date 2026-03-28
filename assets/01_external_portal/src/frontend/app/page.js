@@ -103,7 +103,7 @@ export default function HomePage() {
               <Link href="/notices" className="govt-btn-primary !bg-valdoria-gold !text-valdoria-navy-dark hover:!bg-valdoria-gold-light">
                 View Notices
               </Link>
-              <Link href="/inquiry" className="govt-btn-secondary !border-white/30 !text-white hover:!bg-white/10">
+              <Link href="/inquiry" className="govt-btn-primary !bg-white !text-valdoria-navy-dark hover:!bg-gray-200">
                 Track Inquiry
               </Link>
             </div>
