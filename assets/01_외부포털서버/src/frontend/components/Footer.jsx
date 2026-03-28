@@ -60,12 +60,12 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a
-                  href="#"
+                <Link
+                  href="/egovernment"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
                   E-Government Services
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -145,21 +145,21 @@ export default function Footer() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
             <p>&copy; 2026 Republic of Valdoria. All rights reserved.</p>
             <div className="flex items-center gap-4">
-              <a href="#" className="hover:text-gray-300 transition-colors">
+              <Link href="/terms" className="hover:text-gray-300 transition-colors">
                 Terms of Use
-              </a>
+              </Link>
               <span className="text-gray-700">|</span>
-              <a href="#" className="hover:text-gray-300 transition-colors">
+              <Link href="/privacy" className="hover:text-gray-300 transition-colors">
                 Privacy Policy
-              </a>
+              </Link>
               <span className="text-gray-700">|</span>
-              <a href="#" className="hover:text-gray-300 transition-colors">
+              <Link href="/sitemap-page" className="hover:text-gray-300 transition-colors">
                 Sitemap
-              </a>
+              </Link>
               <span className="text-gray-700">|</span>
-              <a href="#" className="hover:text-gray-300 transition-colors">
+              <Link href="/accessibility" className="hover:text-gray-300 transition-colors">
                 Accessibility
-              </a>
+              </Link>
             </div>
           </div>
         </div>

@@ -1,0 +1,12 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY assets/01_외부포털서버/src/frontend/package.json .
+RUN npm install --legacy-peer-deps
+
+COPY assets/01_외부포털서버/src/frontend/ .
+RUN npm run build
+
+EXPOSE 3000
+CMD ["npm", "start"]
