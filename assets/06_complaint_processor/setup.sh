@@ -36,6 +36,14 @@ apt-get install -y \
     libmagic1 \
     libmagic-dev \
     poppler-utils \
+    gcc \
+    libc6-dev \
+    libjpeg-dev \
+    zlib1g-dev \
+    libtiff-dev \
+    libfreetype-dev \
+    liblcms2-dev \
+    libwebp-dev \
     curl \
     wget \
     gnupg \
