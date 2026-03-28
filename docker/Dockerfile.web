@@ -2,10 +2,10 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY assets/01_외부포털서버/src/frontend/package.json .
+COPY assets/01_external_portal/src/frontend/package.json .
 RUN npm install --legacy-peer-deps
 
-COPY assets/01_외부포털서버/src/frontend/ .
+COPY assets/01_external_portal/src/frontend/ .
 RUN npm run build
 
 EXPOSE 3000

@@ -2,10 +2,10 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY assets/01_외부포털서버/src/backend/requirements.txt .
+COPY assets/01_external_portal/src/backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY assets/01_외부포털서버/src/backend/ .
+COPY assets/01_external_portal/src/backend/ .
 
 EXPOSE 8000
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
