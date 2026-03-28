@@ -1,8 +1,0 @@
-# RAG 인덱서 Python 의존성
-langchain>=0.1.0,<0.2.0
-langchain-community>=0.0.10
-chromadb>=0.4.0,<0.5.0
-ollama>=0.1.0
-requests>=2.31.0
-python-dotenv>=1.0.0
-pyyaml>=6.0

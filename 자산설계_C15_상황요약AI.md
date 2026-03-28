@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 자산 ID | C15 |
-| IP | 192.168.130.13 |
+| IP | 192.168.92.235 |
 | OS | Ubuntu 22.04 LTS |
 | 도메인 | summary.c4i.local |
 | 역할 | LLaMA 기반 전장 상황 자동 요약 |
@@ -147,7 +147,7 @@ import requests
 # ============================================================
 # 설정
 # ============================================================
-C4I_API_URL = os.getenv("C4I_API_URL", "http://192.168.130.12:8000")
+C4I_API_URL = os.getenv("C4I_API_URL", "http://192.168.92.235:8000")
 C4I_API_KEY = os.getenv("C4I_API_KEY", "dev-key-12345")
 OLLAMA_URL = os.getenv("SUMMARY_OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3:8b")
@@ -522,7 +522,7 @@ ExecStart=/opt/summary-ai/venv/bin/uvicorn summary_api:app --host 0.0.0.0 --port
 Restart=always
 RestartSec=5
 Environment=PYTHONUNBUFFERED=1
-Environment=C4I_API_URL=http://192.168.130.12:8000
+Environment=C4I_API_URL=http://192.168.92.235:8000
 Environment=C4I_API_KEY=dev-key-12345
 Environment=SUMMARY_OLLAMA_URL=http://localhost:11434
 
@@ -544,7 +544,7 @@ User=root
 WorkingDirectory=/opt/summary-ai/scripts
 ExecStart=/opt/summary-ai/venv/bin/python /opt/summary-ai/scripts/summary_pipeline.py
 Environment=PYTHONUNBUFFERED=1
-Environment=C4I_API_URL=http://192.168.130.12:8000
+Environment=C4I_API_URL=http://192.168.92.235:8000
 Environment=C4I_API_KEY=dev-key-12345
 Environment=SUMMARY_OLLAMA_URL=http://localhost:11434
 ```
@@ -575,7 +575,7 @@ set -e
 
 echo "=========================================="
 echo "C15 상황 요약 AI 서버 설치 시작"
-echo "호스트: summary.c4i.local (192.168.130.13)"
+echo "호스트: summary.c4i.local (192.168.92.235)"
 echo "=========================================="
 
 # 1. 시스템 업데이트
@@ -636,26 +636,26 @@ echo "=========================================="
 
 | # | 방향 | 출발지 | 도착지 | 포트 | 프로토콜 | 동작 | 설명 |
 |---|------|--------|--------|------|----------|------|------|
-| 1 | WAN→LAN | 192.168.110.40 (관리자 PC) | 192.168.130.10 | 22 | TCP | ALLOW | SSH 관리 접근 |
-| 2 | WAN→LAN | 192.168.110.10 (INT 포털) | 192.168.130.10 | 443 | TCP | ALLOW | INT→릴레이 |
-| 3 | LAN→LAN | 192.168.130.0/24 | 192.168.130.0/24 | * | * | ALLOW | C4I 내부 전체 허용 |
-| 4 | LAN→WAN | 192.168.130.10 | 192.168.110.10 | 8080 | TCP | ALLOW | 릴레이→INT |
+| 1 | WAN→LAN | 192.168.92.254 (관리자 PC) | 192.168.92.235 | 22 | TCP | ALLOW | SSH 관리 접근 |
+| 2 | WAN→LAN | 192.168.92.235 (INT 포털) | 192.168.92.235 | 443 | TCP | ALLOW | INT→릴레이 |
+| 3 | LAN→LAN | 192.168.92.0/24 | 192.168.92.0/24 | * | * | ALLOW | C4I 내부 전체 허용 |
+| 4 | LAN→WAN | 192.168.92.235 | 192.168.92.235 | 8080 | TCP | ALLOW | 릴레이→INT |
 | 5 | WAN→LAN | * | * | * | * | **DENY** | 기본 거부 |
 | 6 | LAN→WAN | * | * | * | * | **DENY** | C4I→외부 기본 거부 |
 
 ### 6.2 DNS 설정 (C4I 내부)
 
 ```bash
-192.168.130.1   gw.c4i.local
-192.168.130.10  relay.c4i.local
-192.168.130.11  cop.c4i.local
-192.168.130.12  data.c4i.local
-192.168.130.13  summary.c4i.local
-192.168.130.21  ops-pc-1.c4i.local
-192.168.130.22  ops-pc-2.c4i.local
-192.168.130.23  ops-pc-3.c4i.local
-192.168.130.24  ops-pc-4.c4i.local
-192.168.130.25  ops-pc-5.c4i.local
+192.168.92.235   gw.c4i.local
+192.168.92.235  relay.c4i.local
+192.168.92.235  cop.c4i.local
+192.168.92.235  data.c4i.local
+192.168.92.235  summary.c4i.local
+(테스트 미할당)  ops-pc-1.c4i.local
+(테스트 미할당)  ops-pc-2.c4i.local
+(테스트 미할당)  ops-pc-3.c4i.local
+(테스트 미할당)  ops-pc-4.c4i.local
+192.168.92.235  ops-pc-5.c4i.local
 ```
 
 ### 6.3 블루팀 탐지 요약 (C15 관련)
@@ -676,14 +676,14 @@ echo "=========================================="
 
 | 자산 | IP | 포트 | 프로토콜 | 서비스 |
 |------|-----|------|----------|--------|
-| C15 | 192.168.130.13 | 8001 | TCP | FastAPI (브리핑 API) |
-| C15 | 192.168.130.13 | 11434 | TCP | Ollama (LLM API) |
+| C15 | 192.168.92.235 | 8001 | TCP | FastAPI (브리핑 API) |
+| C15 | 192.168.92.235 | 11434 | TCP | Ollama (LLM API) |
 
 ### 6.6 네트워크 토폴로지
 
 ```
                     ┌──────────────────────────────────────────────────┐
-                    │              C4I 존 (192.168.130.0/24)            │
+                    │              C4I 존 (192.168.92.0/24)            │
                     │                                                    │
     ┌───────────┐   │   ┌──────────┐    ┌──────────┐    ┌──────────┐   │
     │ 군 INT    │───┼──▶│ C12 망연동│───▶│ C14 데이터│◀──▶│ C13 COP  │   │

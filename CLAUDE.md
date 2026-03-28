@@ -1,7 +1,7 @@
 # CLAUDE.md — 사이버 훈련 자산 구현 가이드
 
 > 이 파일은 자산 구현 시 공통 유의사항을 정리한 것이다.
-> 외부 포털 서버(01) 구현 과정에서 도출된 교훈을 기반으로 작성되었다.
+> 1차 구현 및 테스트 과정에서 도출된 교훈을 기반으로 작성되었다.
 
 ---
 
@@ -9,17 +9,110 @@
 
 ```
 assets/<자산번호>_<자산명>/
-├── setup.sh              # 원클릭 배포 스크립트
+├── setup.sh              # 원클릭 배포 스크립트 (VM 네이티브 설치)
 ├── .env.example          # 환경변수 템플릿
-├── Dockerfile            # Docker 테스트용
-├── docker-compose.yml    # 풀스택 로컬 테스트용
 ├── src/
 │   ├── backend/          # 백엔드 소스
 │   ├── frontend/         # 프론트엔드 소스 (해당 시)
 │   └── config/           # Nginx, systemd 등 설정 파일
 ├── sql/                  # DB 스키마 + 시드데이터
-└── screenshots/          # Playwright 테스트 스크린샷
+└── conf/                 # 서비스 설정 파일 (nginx, systemd 등)
 ```
+
+---
+
+## 배포 원칙
+
+### VM 네이티브 설치 원칙
+- **모든 자산은 VMware VM에 직접 설치한다** — Docker를 사용하지 않는다
+- 예외: 07 AI어시스턴트(Ollama+OpenWebUI), D4-D5 허니팟(Cowrie+SNARE)은 Docker 허용
+- Dockerfile, docker-compose.yml은 생성하지 않는다 (예외 자산 제외)
+
+### 배포 브랜치 구조
+- **main 브랜치**: 취약점 주석 포함 원본 소스 + 설계 문서 (개발/레드팀용)
+- **deploy 브랜치**: 취약점 주석 제거 버전 (VM 배포/블루팀용)
+- `scripts/build_deploy.py`로 주석 제거 빌드, `scripts/push_deploy.sh`로 deploy 브랜치 갱신
+
+---
+
+## setup.sh 작성 규칙
+
+1. `set -e`로 에러 시 즉시 중단
+2. `SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"` 반드시 정의
+3. root 권한 확인 (`$EUID`)
+4. 진행 상황 번호 출력 (`[1/9]`, `[2/9]`, ...)
+5. **파일 존재 확인 후 복사**: `[ -f "${SCRIPT_DIR}/conf/file" ] || { echo "[ERROR]..."; exit 1; }`
+6. **모든 파일 경로는 `${SCRIPT_DIR}` 기반** — 절대 경로 하드코딩 금지
+7. 완료 후 접속 URL, 주의사항 출력
+8. UFW 방화벽 설정 포함 (취약 포트 개방 시 주석으로 표시)
+9. **소프트웨어 버전 하드코딩 금지** — `apt-get install postgresql`로 최신 버전 설치, 설치 후 `pg_config --version` 등으로 버전 감지
+
+---
+
+## PostgreSQL 유의사항
+
+### postgresql.conf 덮어쓰기 금지
+- Ubuntu/Debian PostgreSQL 패키지의 기본 `postgresql.conf`에는 `data_directory` 등 시스템 필수 설정이 포함됨
+- **통째로 덮어쓰면 클러스터 시작 실패** (`Error: Invalid data directory for cluster`)
+- **올바른 방법**: `conf.d/` 디렉토리에 오버라이드 파일을 넣는다
+```bash
+# 원본 postgresql.conf에 include_dir 추가
+grep -q "include_dir = 'conf.d'" ${PG_CONF_DIR}/postgresql.conf || \
+    echo "include_dir = 'conf.d'" >> ${PG_CONF_DIR}/postgresql.conf
+
+# 커스텀 설정은 conf.d/에 배포
+cat > ${PG_CONF_DIR}/conf.d/00_custom.conf << 'PGCONF'
+listen_addresses = '*'
+log_statement = 'none'
+...
+PGCONF
+```
+
+### SQL 파일 실행 시 권한 문제
+- `sudo -u postgres psql -f /home/user/sql/init.sql`은 **Permission denied** 발생
+- postgres 유저는 다른 사용자의 홈 디렉토리를 읽을 수 없다
+- **해결**: 임시 디렉토리로 복사 후 실행
+```bash
+SQL_TMP=$(mktemp -d)
+cp ${SCRIPT_DIR}/sql/*.sql ${SQL_TMP}/
+chown -R postgres:postgres ${SQL_TMP}
+sudo -u postgres psql -f ${SQL_TMP}/init.sql
+rm -rf ${SQL_TMP}
+```
+
+### 버전 하드코딩 금지
+- `postgresql-15`, `/etc/postgresql/15/main` 등 버전 번호를 하드코딩하지 않는다
+- 설치 후 버전 자동 감지:
+```bash
+apt-get install -y postgresql postgresql-contrib
+PG_VER=$(pg_config --version | grep -oP '\d+' | head -1)
+PG_CONF_DIR="/etc/postgresql/${PG_VER}/main"
+```
+
+---
+
+## DB 스키마 — 백엔드 코드와 일치 필수
+
+### 컬럼명 불일치 방지
+- **DB DDL의 컬럼명은 반드시 백엔드 코드의 SQL 쿼리와 일치해야 한다**
+- 설계 문서에서 `notice_id`로 정의했어도 백엔드가 `id`로 쿼리하면 DB도 `id`를 사용해야 한다
+- 1차 구현에서 발생한 불일치 예시:
+
+| 설계/DDL | 백엔드 SQL | 문제 |
+|---|---|---|
+| `notice_id` | `id` | 컬럼명 불일치 → 조회 실패 |
+| `author_name` | `author` | 컬럼명 불일치 |
+| `is_pinned` | `is_public` | 컬럼명 + 의미 불일치 |
+| `password_hash` | `password` | 컬럼명 불일치 |
+
+### DB 계정 일치
+- 백엔드 `.env`에 설정된 DB 계정(`portal_app`)은 반드시 DB의 `00_roles.sql`에 생성되어야 한다
+- 1차 구현에서 01번 서버가 `portal_app` 계정을 사용하는데 DB에 해당 계정이 없어서 연결 실패
+
+### 원칙
+1. **백엔드 코드를 먼저 작성**하고
+2. **코드의 SQL 쿼리에서 사용하는 컬럼명으로 DDL을 작성**한다
+3. `.env`의 DB 계정은 `00_roles.sql`에 반드시 포함
 
 ---
 
@@ -47,6 +140,7 @@ items = await db.fetch_all(data_query, values)
 
 ### DB 비밀번호 URL 인코딩
 - 비밀번호에 `#`, `@`, `!` 등 특수문자가 포함되면 DB URL 파싱이 깨진다
+- 특히 `#`은 URL fragment로 해석되어 뒷부분이 잘림 — **DB 연결 실패**
 - `urllib.parse.quote_plus()`로 인코딩 필수
 ```python
 from urllib.parse import quote_plus
@@ -67,65 +161,6 @@ url = f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{db}"
 - `log_format` 디렉티브는 `http` 블록 레벨에 위치해야 한다
 - `server` 블록 안에 넣으면 Nginx가 시작 실패한다
 - sites-available 파일은 `http` 블록 안에 include되므로 파일 최상단에 작성하면 된다
-
-### Docker 테스트 시 HTTP 서버 블록
-- Docker 로컬 테스트에서는 TLS 없이 HTTP(80)로 접근하므로, HTTP server 블록에도 프록시/정적파일 설정을 넣어야 한다
-- 프로덕션(VM 배포)에서는 HTTP→HTTPS 리다이렉트만 유지
-
----
-
-## Docker 테스트 환경
-
-### docker-compose.yml 작성 규칙
-- 한글 디렉토리명이 포함되면 이미지 이름이 깨진다 → `image:` 속성을 명시적으로 지정
-```yaml
-portal:
-  image: mois-portal:latest   # 명시적 이미지 이름
-  build: .
-```
-
-### DB healthcheck 필수
-- FastAPI가 DB 연결을 시도하기 전에 PostgreSQL이 준비되어야 한다
-```yaml
-db:
-  healthcheck:
-    test: ["CMD-SHELL", "pg_isready -U user -d dbname"]
-    interval: 5s
-    retries: 10
-portal:
-  depends_on:
-    db:
-      condition: service_healthy
-```
-
-### 환경변수로 DB_HOST 오버라이드
-- docker-compose에서 `DB_HOST=db` (서비스명)로 오버라이드
-- .env.example에는 실제 IP(`192.168.100.20`)를 기본값으로 유지
-
----
-
-## 프론트엔드 (React) 유의사항
-
-### API Base URL
-- 프론트엔드의 API base URL은 `.env` 또는 `api.js`에 설정
-- Docker 테스트 시에는 `localhost`로 접근하므로 환경변수 또는 Vite proxy 설정 활용
-- **취약점은 자산별 설계 문서에 명시된 것만 구현한다** — 설계서에 없는 취약점을 임의로 추가하지 않는다
-
-### Playwright 테스트
-- SPA 라우팅 시 `waitUntil: 'networkidle'`이 타임아웃될 수 있다
-- `waitUntil: 'load'`로 변경하고 타임아웃을 15~20초로 설정
-- Docker 내에서 실행 시 `host.docker.internal`로 호스트 접근
-
----
-
-## setup.sh 작성 규칙
-
-1. `set -e`로 에러 시 즉시 중단
-2. root 권한 확인 (`$EUID`)
-3. 진행 상황 번호 출력 (`[1/9]`, `[2/9]`, ...)
-4. 완료 후 접속 URL, 주의사항 출력
-5. DB 서버 별도 안내 (원격 DB인 경우 init.sql 실행 방법)
-6. UFW 방화벽 설정 포함 (취약 포트 개방 시 주석으로 표시)
 
 ---
 

