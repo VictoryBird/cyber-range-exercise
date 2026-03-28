@@ -1,0 +1,32 @@
+# =============================================================
+# Systemd Service — MOIS Portal Web (Next.js)
+# Asset 01: 외부 포털 서버 (192.168.92.201)
+# =============================================================
+
+[Unit]
+Description=MOIS Portal Web (Next.js)
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=portaladm
+Group=portaladm
+WorkingDirectory=/opt/mois-portal/frontend
+Environment=NODE_ENV=production
+
+ExecStart=/usr/bin/node node_modules/.bin/next start -p 3000
+
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mois-portal-web
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/opt/mois-portal/frontend
+
+[Install]
+WantedBy=multi-user.target
