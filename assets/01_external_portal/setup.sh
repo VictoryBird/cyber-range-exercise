@@ -126,10 +126,9 @@ fi
 # Verify critical dependencies
 echo "Verifying Python dependencies..."
 "${DEPLOY_DIR}/backend/venv/bin/python" -c "
-import fastapi, databases, sqlalchemy, uvicorn, pydantic
+import fastapi, asyncpg, uvicorn, pydantic
 print('  fastapi:', fastapi.__version__)
-print('  databases:', databases.__version__)
-print('  sqlalchemy:', sqlalchemy.__version__)
+print('  asyncpg:', asyncpg.__version__)
 print('  uvicorn:', uvicorn.__version__)
 print('  pydantic:', pydantic.__version__)
 print('All critical dependencies OK.')
